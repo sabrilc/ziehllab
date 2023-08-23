@@ -246,8 +246,11 @@ NavBar::end();
           <div class="col-lg-4 col-md-6 footer-newsletter">
             <h4>Información de Contacto</h4>
             <p>Ver información de contacto</p>
-            <?= Html::a('Contactar',['/site/contacto'],['class'=>'btn btn-services'])?>
-             
+            <a href='https://wa.me/593<?=str_replace(' ', '', $setting->telefono) ?>?text="Hola, deseo realizarme exámenes, en su laboratorio"'>
+                <?= Html::img('@web/imagen/WhatsAppButtonWhiteMedium.svg') ?>
+                </a>
+
+
 
           </div>
 

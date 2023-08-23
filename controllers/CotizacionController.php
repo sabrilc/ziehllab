@@ -78,7 +78,7 @@ class CotizacionController extends Controller
         $mensaje='';
         $model= new Cotizacion();
         if(isset(Yii::$app->request->post()['analisis'])){
-            
+        /*
         if ($model->load(Yii::$app->request->post()) && $model->save()) {        
             
           $examenesSeleccionados=  Yii::$app->request->post()['analisis'];
@@ -120,7 +120,7 @@ class CotizacionController extends Controller
           
           
           $mensaje="SU COTIZACION HA SIDO ENVIADA AL CORREO: ".$model->email;
-        }
+        }*/
        
         }
         $model= new Cotizacion();
