@@ -299,7 +299,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                         
                         $this->SetY($y);
                         $this->SetFont($this->font,'',$this->font_body_size); 
-                        $responsableTecnico = Laboratorista::findOne(2);						
+                        $responsableTecnico = Laboratorista::findOne(7);						
                         if( !is_null($responsableTecnico)){                          
                             $this->SetX(100);
                             $this->Cell(90,3,utf8_decode( $responsableTecnico->nombres), $this->debug ,0,'C');                            
