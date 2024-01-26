@@ -10,7 +10,7 @@ use inquid\pdf\FPDF;
 class PDF_ORDEN_ACCESS extends FPDF
 {
 
-    public $examen;
+    public $examen=['analisis_id'=>null];
     private $empresa;
     public $orden;
     public $paciente;
@@ -23,7 +23,8 @@ class PDF_ORDEN_ACCESS extends FPDF
     public $font_body_size;
     public $font_body_table_title;    
     public $line_begin;    
-    private $debug=false;
+    private $debug=true;
+    private $digital_sign= false;
 	private $footer;
     
     private $rapidTestIgm;
@@ -35,7 +36,8 @@ class PDF_ORDEN_ACCESS extends FPDF
 	private $antiSarsCov2;
 	private $rTPCRtiempoReal;
     
-    public function __construct($orden_id){
+    public function __construct($orden_id,$for_sign=false){
+        $this->digital_sign = true;
         $this->rapidTestIgm = false;
 		$this->rapidTestIgg = false;
         $this->hisopadoAntigeno = true;
@@ -70,11 +72,16 @@ class PDF_ORDEN_ACCESS extends FPDF
             $this->analisis = $this->examen->analisis;
             $numero_hoja=$this->analisis->hoja_impresion;
             if($numero_hoja!= $numero_hoja_men && 0 !=  $numero_hoja_men){  $this->AddPage('P','A4'); }
+
             if( $this->impresionAccessLab() ){
                 $this->builtAccessLab();
 				$this->footer = false;
-				
-            }else{
+            } else if( $this->impresionPanel()){
+                $this->builtPanel();
+                $this->footer = false;
+            }
+
+            else{
                 $this->builtNormal();
 				$this->footer = true;
             }
@@ -88,6 +95,104 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->germenes();        
         $this->textoNota( $this->examen->nota );
 		    
+    }
+
+    private function builtPanel(){
+        $this->encabezadoForPanel();
+        $this->analisis();
+        $this->germenes();
+        $this->textoNota( $this->examen->nota );
+        $this->firmaPanel();
+
+
+
+
+    }
+
+    private function firmaPanel(){
+        $this->SetX($this->line_begin+10);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(70,5, utf8_decode( 'Fecha y hora de emisión del informe de resultados:'),$this->debug, 0,'L',0);
+        $date = new \DateTime($this->orden->fecha_resultados );
+        $time = new \DateTime('2021-01-01 '.$this->orden->hora_resultados );
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->Cell(95,5, utf8_decode(   $this->generateEnLetras( date_format($date, 'Y/m/d') ).' '.  date_format($time, 'H\Hi')   ),$this->debug, 0,'L',0);
+        $this->ln(30);
+
+        $y= $this->GetY();
+        $this->SetFont($this->font,'',$this->font_body_size);
+        if( !empty($this->orden->laboratorista_id ) && $this->orden->laboratorista_id <> 2 ){
+            $laboratorista = $this->orden->laboratorista;
+            $this->Cell(90,3,utf8_decode( $laboratorista->nombres), $this->debug ,0,'C');
+            $this->Ln();
+            if( $this->digital_sign){
+                $url = $this->empresa->access_url;
+                $qrCode = (new QrCode($url));
+                $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                $this->Image($qrCode->writeDataUri(),$this->line_begin,$y-20,20,20,'png');
+                $this->SetXY($this->line_begin + 27,$y-12);
+                $this->Cell(90,1,utf8_decode("Firmado electrónicamente por:"), $this->debug ,0,'J');
+                $this->ln(1);
+                $this->SetFont($this->font,'B',$this->font_body_size);
+                $this->SetXY($this->line_begin + 27,$y-10);
+                $this->MultiCell(105,4,utf8_decode('SERGIO JOSUE'. chr(10).'ABRIL CAMPUZANO'),$this->debug ,'J',0);
+
+            }
+            else{
+            $urlImage = __DIR__.'/../imagen/firmas/'.$laboratorista->dir_imagen_firma;
+            if (@getimagesize($urlImage)) {
+                $this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
+            }}
+
+            $this->Cell(90,3,utf8_decode('Rg. ACESS. '. $laboratorista->identificacion), $this->debug,0,'C');
+            $this->Ln();
+            $this->SetFont($this->font,'B',$this->font_body_size);
+            $this->SetX(30);
+            $this->MultiCell(50,3,utf8_decode('Responsable de la emisión de los resultados de la prueba'), $this->debug,'C');
+        }
+
+        $this->SetY($y);
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $responsableTecnico = Laboratorista::findOne(7);
+        if( !is_null($responsableTecnico)){
+            $this->SetX(100);
+            $this->Cell(90,3,utf8_decode( $responsableTecnico->nombres), $this->debug ,0,'C');
+            $this->Ln();
+            $this->SetX(100);
+            $urlImage = __DIR__.'/../imagen/firmas/'.$responsableTecnico->dir_imagen_firma;
+            if (@getimagesize($urlImage)) {
+                //$this->Image( $urlImage, $this->GetX()+25, $this->GetY() - 25,40,  20,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
+                $this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
+            }
+            $this->Cell(90,3,utf8_decode('Rg. ACESS. '.$responsableTecnico->identificacion), $this->debug,0,'C');
+            $this->Ln();
+            // $this->SetX(100);
+            // $this->Cell(90,3,utf8_decode( $responsableTecnico->registro_senescyt), $this->debug,0,'C');
+            //  $this->Ln();
+            $this->SetX(120);
+            $this->SetFont($this->font,'B',$this->font_body_size);
+            $this->MultiCell(50,3,utf8_decode('Firma del profesional que valida la prueba'), $this->debug,'C');
+        }
+        $this->ln(7);
+
+        $y = $this->GetY();
+        if( strlen($this->orden->token)>50 ){
+            $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
+            $qrCode = (new QrCode($url));
+        } else{
+            $qrCode = (new QrCode($this->orden->codigo));
+        }
+
+        $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+        $this->Image($qrCode->writeDataUri(),$this->line_begin+20,$y,45,45,'png');
+
+        $testQR =  utf8_decode( trim( $this->examen->analisis->acess_qr_text ) );
+        if( strlen( $testQR )> 0){
+            $qrCode =  ( new QrCode( $testQR ) );
+            $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+            $this->Image($qrCode->writeDataUri(),123,$y,45,45,'png');
+        }
+        $this->ln(100);
     }
     
     private function builtAccessLab(){
@@ -174,8 +279,93 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(70,5,utf8_decode($this->orden->codigo),$this->debug,0,'L');
         $this->ln(7);
-        
-        
+    }
+
+
+    private function encabezadoForPanel(){
+        $this->checkY();
+        $this->Image(__DIR__.'/../imagen/AccessLab_a4.png',0,0,210,297,'png');
+        $this->Image(__DIR__.'/../imagen/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
+        $this->SetXY( $this->line_begin + 75, 10);
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $y = $this->GetY();
+        $this->MultiCell(105,5,utf8_decode('Dirección: '. chr(10).$this->empresa->direccion.  chr(10).'Télefono: '.$this->empresa->telefono),$this->debug ,'J',0);
+        $this->SetXY( $this->line_begin +161 ,$y+24);
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->MultiCell(30,5,utf8_decode('Unicodigo: '.$this->empresa->unicodigo),$this->debug ,'J',0);
+
+        $this->ln();
+        $url = $this->empresa->access_url;
+        $qrCode = (new QrCode($url));
+        $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+        $this->Image($qrCode->writeDataUri(),$this->line_begin+160,$y,25,25,'png');
+
+        $this->SetXY($this->line_begin,40);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $y = $this->GetY();
+        $x = $this->GetX();
+        $this->SetFillColor( 253, 210, 195 );
+        $this->SetDrawColor( 254, 254, 254 );
+        $this->Cell(185,25,utf8_decode(''),$this->debug,0,'L',true);
+        $this->Line( $this->line_begin, $y+20, 200, $y+20);//horizontal
+        $this->Line( $this->line_begin +90, $y, $this->line_begin +90, $y+25);//vertical 1
+        $this->Line( $this->line_begin +135, $y, $this->line_begin +135, $y+20);//vertical 2
+        $this->SetXY($x,$y);
+        $this->Cell(90,5,utf8_decode('DATOS DEL PACIENTE'),$this->debug,0,'L');
+        $x = $this->GetX();
+        $this->MultiCell(45,5,utf8_decode('INFORMACIÓN DEL PACIENTE'),$this->debug,'L');
+        $this->SetX($x);
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->MultiCell(45,3,utf8_decode( $this->orden->paciente_info),$this->debug,'J');
+        $this->SetXY(150,$y);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->MultiCell(50,4,utf8_decode('INFORMACIÓN DEL'. chr(10).'SOLICITANTE DE LA PRUEBA'),$this->debug,'L');
+        $this->SetX(150);
+        $this->SetFont($this->font,'',$this->font_body_size);
+
+        if( $this->orden->doctor_id > 0 ){
+            $this->MultiCell(50,3,utf8_decode( $this->orden->doctor->nombres),$this->debug,'J');
+        }else{
+            $this->MultiCell(50,3,utf8_decode( $this->orden->solicitante_info),$this->debug,'J');
+        }
+        $this->SetY($y);
+        $this->ln(5);
+        $this->SetX($this->line_begin);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(20,5,utf8_decode('Nombres:'),$this->debug,0,'L');
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->Cell(70,5,utf8_decode($this->paciente->nombres),$this->debug,0,'L');
+
+        $this->ln();
+        $this->SetX($this->line_begin);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(25,5,utf8_decode('Identificación:'),$this->debug,0,'L');
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->Cell(65,5,utf8_decode( strlen( $this->paciente->identificacion ) > 2 ? $this->paciente->identificacion:'' ),$this->debug,0,'L');
+        $this->ln();
+
+        $this->SetX($this->line_begin);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(12,5,utf8_decode('Edad:'),$this->debug,0,'L');
+        $this->SetFont($this->font,'',$this->font_body_size);
+        if($this->paciente->unidad_tiempo=='RN'){
+            $this->Cell(78,5,utf8_decode('RN'),$this->debug,0,'L');
+        }else{
+            $this->Cell(10,5,utf8_decode($this->paciente->edad),$this->debug,0,'L');
+            $this->Cell(68,5,utf8_decode($this->paciente->unidad_tiempo),$this->debug,0,'L');
+        }
+        $this->ln();
+        $this->SetX($this->line_begin);
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(42,5,utf8_decode('Fecha de toma de la muestra:'),$this->debug,0,'L');
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $date = new \DateTime($this->orden->fecha);
+        $this->Cell(48,5,utf8_decode( $this->generateEnLetras( date_format($date, 'Y/m/d') ) ),$this->debug,0,'L');
+        $this->SetFont($this->font,'B',$this->font_body_size);
+        $this->Cell(25,5,utf8_decode('Número de orden: '),$this->debug,0,'L');
+        $this->SetFont($this->font,'',$this->font_body_size);
+        $this->Cell(70,5,utf8_decode($this->orden->codigo),$this->debug,0,'L');
+        $this->ln(7);
     }
     
     private function analisisAccessLab(){
@@ -380,9 +570,16 @@ class PDF_ORDEN_ACCESS extends FPDF
         }
         
     }
-    
+    private function impresionPanel(){
+        if( $this->examen['analisis_id']== 176 ){
+            return true;
+        }
+
+        return false;
+
+
+    }
     private function impresionAccessLab(){
-      	     
 		if( $this->examen['analisis_id']== 228 ){
             return $this->antiSarsCov2;
         }
@@ -495,7 +692,7 @@ class PDF_ORDEN_ACCESS extends FPDF
     }
    
     public function Header(){
-        if( !$this->impresionAccessLab() ){
+        if( !$this->impresionAccessLab() or ! $this->impresionPanel()){
 		$this->SetDrawColor( 0, 0, 0 );
         $this->Image(__DIR__.'/../imagen/a4.png',0,0,210,297,'png');
         $this->SetXY($this->line_begin,46);
