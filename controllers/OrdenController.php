@@ -44,7 +44,7 @@ class OrdenController extends Controller
                                       'guardar-resultados','imprimir-resultado','ver-resultado',
                                       'finalizar','guardar-prueba-sensiblidad','guardar-germen','borrar-germen',
                                       'examen-plantilla','examenes','prueba-sensibilidad-examen-germen',
-                                      'imprimir','pagar','descuento','poner-en-proceso','enviar-mail','guardar-info'
+                                      'imprimir','pagar','descuento','poner-en-proceso','enviar-mail','guardar-info','firmar'
                             
                          ],
                         'allow' => true,
@@ -251,6 +251,44 @@ class OrdenController extends Controller
         
         return $this->render('descarga',[ ]);
         
+    }
+
+
+
+    public function actionFirmar($id){
+        if(Yii::$app->request->isPost){
+            $model = Orden::findOne( $id);
+
+            $options = array(
+                // 'soap_version'=>SOAP_1_1,
+                'trace'=>true,
+                "exceptions"=>true,
+
+                'cache_wsdl'=>WSDL_CACHE_NONE,
+                //   'stream_context' => stream_context_create($arrContextOptions)
+            );
+            $soapClient = new \SoapClient('http://127.0.0.1:5000/sign/?wsdl', $options);
+
+
+
+
+            $criteria = array(
+                "file" => "pdf",
+                "p12" => "Barrel of Oil",
+                "secret" => "asasas"
+            );
+            $param = new \SoapParam(new \SoapVar($criteria, SOAP_ENC_OBJECT), 'Document');
+            $request = $soapClient->SignatureSigner($param);
+
+
+
+            return var_dump($soapClient);
+
+
+           return print_r($request);
+
+        }
+        return "FAIL";
     }
 
     // ajax 

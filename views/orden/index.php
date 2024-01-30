@@ -101,7 +101,7 @@ $this->params['breadcrumbs'][] = $this->title;
             //'updated_by',
 
                       
-            ['class' => 'yii\grid\ActionColumn','template' => '{EnProceso}{enviarMail}{Ver}{Editar}{Borrar}',
+            ['class' => 'yii\grid\ActionColumn','template' => '{EnProceso}{Firmar}{enviarMail}{Ver}{Editar}{Borrar}',
                 'buttons' => [
                     'EnProceso' => function ($url, $model) {
                     if( $model->cerrada == true) {
@@ -137,8 +137,19 @@ $this->params['breadcrumbs'][] = $this->title;
                                              'data-method'  => 'post',
                                          ]).
                                          '</div>';
+                         },
+
+
+                               'Firmar' => function ($url, $model) {
+
+                         return Html::a('<span> <b class="mdi mdi-signer"></b></span> ',
+                                         \yii\helpers\Url::to(['orden/firmar','id' => $model->id]),
+                                         ['class'=>'btn btn-danger','title' => Yii::t('yii', 'Firmar'),'aria-label' => Yii::t('yii', 'Firmar'),
+                                             'data-confirm' => Yii::t('yii', 'Esta seguro de firmar la orden ?'),
+                                             'data-method'  => 'post',
+                                         ]).
+                                         '</div>';
                          }
-                         
                      ]
                             
                ]
