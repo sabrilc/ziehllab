@@ -257,38 +257,80 @@ class OrdenController extends Controller
 
     public function actionFirmar($id){
         if(Yii::$app->request->isPost){
-            $model = Orden::findOne( $id);
+            $orden= Orden::findOne($id);
+            $orden_pdf = $orden->pdf(true);
+            $url = 'http://127.0.0.1:8000/api/sign/pdf';
 
-            $options = array(
-                // 'soap_version'=>SOAP_1_1,
-                'trace'=>true,
-                "exceptions"=>true,
+            $files = [
+                __DIR__."/../media/signatures/Fiprogent_FT.pdf",
+                __DIR__."/../media/signatures/SERGIO JOSUE ABRIL CAMPUZANO 1206706838-220124113821.p12",
+              //  __DIR__."/../media/signatures/NOEMI VERONICA CAMACHO VILLOTA 291122101601.p12",
+                __DIR__."/../media/signatures/1user.p12"
+            ];
+            $secrets=["Windows8",
+                //"Camacho8888",
+                "1964Jhon"
+            ];
 
-                'cache_wsdl'=>WSDL_CACHE_NONE,
-                //   'stream_context' => stream_context_create($arrContextOptions)
-            );
-            $soapClient = new \SoapClient('http://127.0.0.1:5000/sign/?wsdl', $options);
+            foreach ($files as $index => $file) {
+                $postData['file_'.$index]= curl_file_create(realpath($file), mime_content_type($file),  basename($file));
+            }
 
-
-
-
-            $criteria = array(
-                "file" => "pdf",
-                "p12" => "Barrel of Oil",
-                "secret" => "asasas"
-            );
-            $param = new \SoapParam(new \SoapVar($criteria, SOAP_ENC_OBJECT), 'Document');
-            $request = $soapClient->SignatureSigner($param);
-
-
-
-            return var_dump($soapClient);
+            foreach ($secrets as $index=> $secret){
+                $postData['secret_'.$index] = $secret;
+            }
 
 
-           return print_r($request);
+            $request = curl_init($url);
+            curl_setopt($request, CURLOPT_POST, true);
+            curl_setopt($request, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($request, CURLOPT_VERBOSE, 0);
+            $result = curl_exec($request);
+
+            if ($result === false) {
+                error_log(curl_error($request));
+            }
+
+            curl_close($request);
+
+            $response= json_decode($result);
+
+            if ($response->errors){
+                print_r( $response->message);
+            }else{
+                $fp = fopen(__DIR__.'/data.pdf', 'w');
+                fwrite($fp, base64_decode($response->pdf));
+                fclose($fp);
+            }
+
+
+
+
+
+           /* $p12File = new \CURLFile(__DIR__."/../media/signatures/SERGIO JOSUE ABRIL CAMPUZANO 1206706838-220124113821.p12", 'application/x-pkcs12', 'firma.p12');
+            $pdfFile = new \CURLFile(__DIR__."/../media/signatures/Fiprogent_FT.pdf", 'application/pdf', 'orden.pdf');
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_VERBOSE, 0);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, [
+                'firma.p12' => $p12File,
+                'orden.pdf' => $pdfFile,
+                'secret'=>'Windows8'
+            ]);
+
+            $out = curl_exec($ch);
+            curl_close($ch);
+
+
+            $fp = fopen(__DIR__.'/data.pdf', 'w');
+            fwrite($fp, $out);
+            fclose($fp);*/
 
         }
-        return "FAIL";
+        //return "FAIL";
     }
 
     // ajax 
@@ -816,3 +858,18 @@ class OrdenController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 }
+
+ function build_post_fields( $data,$existingKeys='',&$returnArray=[]){
+    if(($data instanceof CURLFile) or !(is_array($data) or is_object($data))){
+        $returnArray[$existingKeys]=$data;
+        return $returnArray;
+    }
+    else{
+        foreach ($data as $key => $item) {
+            build_post_fields($item,$existingKeys?$existingKeys."[$key]":$key,$returnArray);
+        }
+        return $returnArray;
+    }
+}
+
+

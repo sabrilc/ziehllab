@@ -165,15 +165,17 @@ class Orden extends \yii\db\ActiveRecord
       return  $this->getExamens()->joinWith(['analisis'])->orderBy(['hoja_impresion'=>SORT_ASC,'orden_impresion'=>SORT_ASC]);
     }
     
-    public function pdf() {
-		if ($this->id == 17155 ||  $this->id == 22560 || $this->id == 17118 || $this->id == 17146 || $this->id == 17159 || $this->id == 22709){ 
-		 $pdf= new PDF_ORDEN_ACCESS($this->id);
-         $pdf->Output('','ORDEN_'.$this->codigo.'.pdf');
-		}else{
-        // $pdf= new PDF_ORDEN($this->id);
-		 $pdf= new PDF_ORDEN_ACCESS($this->id);
-        $pdf->Output('','ORDEN_'.$this->codigo.'.pdf');
-		}
+    public function pdf($for_signer=false) {
+
+         if( $for_signer){
+             $pdf= new PDF_ORDEN_ACCESS($this->id, true);
+             return base64_encode($pdf->Output('','S'));
+         }else{
+             $pdf= new PDF_ORDEN_ACCESS($this->id);
+             return $pdf->Output('','ORDEN_'.$this->codigo.'.pdf');
+         }
+
+
     }
     
     public function pdfForDownload() {
