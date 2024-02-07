@@ -70,8 +70,8 @@ function finalizarOrden(orden_id){
 		  dangerMode: true,
 		  buttons: true,
 		}).then((value) => {
-			if(value){ 
-				
+			if(value){
+
 				$.ajax({
 					  method: "POST",
 					  url: "/orden/finalizar?orden_id="+orden_id,
@@ -120,6 +120,38 @@ function finalizarOrden(orden_id){
 	
 	}
 
+function firmar(orden){
+	swal("Esta seguro de firmar digitalmente  la orden # "+orden.codigo+"?", {
+		dangerMode: true,
+		buttons: true,
+	}).then((value) => {
+		if(value){
+
+			$.ajax({
+				method: "POST",
+				url: "/orden/firmar?orden_id="+orden.id,
+				dataType: "json",
+				beforeSend: function( xhr ) {
+					document.getElementById("overlay").style.display = "block";
+				}
+
+			})
+				.done(function( data ) {
+					if(!data.errors ){
+						swal("Transacción realizada con Exito!.", data.message , "success").then((res)=>{   });
+					}
+					else{
+						swal("Error al firmar!.", data.message , "error");
+					}
+
+					document.getElementById("overlay").style.display = "none";
+
+				});
+		}
+
+	});
+
+}
 
 
 

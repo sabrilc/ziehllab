@@ -219,7 +219,7 @@ class Examen extends \yii\db\ActiveRecord
         foreach ($this->examenGermenes as $examenGermen) {            
             
             $form.='<div class="card border-primary mt-2">
-                      <div class="card-body text-primary">';
+                      <div class="card-body">';
             
             $form.=Html::tag(
                 'div',Html::tag(

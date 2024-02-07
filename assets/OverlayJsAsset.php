@@ -15,13 +15,22 @@ use yii\web\AssetBundle;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class MdiAsset extends AssetBundle
+class OverlayJsAsset extends AssetBundle
 {
-    public $sourcePath = '@javaScript/node_modules/@mdi/font/';
+    public $sourcePath = '@javaScript/lib/overlayjs-1.0.5';
+    
+   
+  
     public $css = [
-        'css/materialdesignicons.min.css',   
+       'overlay.css'
     ];
-
-    public $js = [ ];
-    public $depends = [];
+    
+  
+   
+    public $js = [ 
+        'overlay.js',
+    ];
+    public $depends = [
+       'yii\bootstrap\BootstrapAsset',
+    ];
 }

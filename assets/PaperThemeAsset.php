@@ -9,12 +9,7 @@ namespace app\assets;
 
 use yii\web\AssetBundle;
 
-/**
- * Main application asset bundle.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
- */
+
 class PaperThemeAsset extends AssetBundle
 {
     public $sourcePath = '@themes/Paper';
@@ -25,12 +20,15 @@ class PaperThemeAsset extends AssetBundle
         'css/bootstrap.css',
         'css/paper.css',
         'css/site.css',
+        'css/overlay.css',
     ];
-    public $js = [  ];
+    public $js = [ 'js/main.js' ];
     public $depends = [
+       'app\assets\FontAwesomeIconsAsset',
        'app\assets\MdiAsset',
        'yii\web\YiiAsset',
        'yii\bootstrap\BootstrapAsset',
        'app\assets\SweetAlertAsset',
+
     ];
 }

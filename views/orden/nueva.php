@@ -23,8 +23,6 @@ $this->params['breadcrumbs'][] = ['label' => 'Ordenes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<h5><?= Html::encode($this->title) ?></h5>
-
 <?= $this->render('_add_cliente',['model'=>$model]) ?>
 
 
@@ -58,11 +56,24 @@ $this->params['breadcrumbs'][] = $this->title;
                  
                 
                  ]) ?>  
-   </div>  
-   
- 
-    
- 
+   </div>
+
+    <div class="col-sm-12 col-md-6">
+        <?= $form->field($model, 'responsable_tecnico_id')->widget(Select2::class, [
+            'options'=>['prompt'=>'Seleccionar ...'],
+            'data' =>  ArrayHelper::map(
+                Laboratorista::find()
+                    ->where(['dbremove'=>false])
+                    ->andWhere(['responsable_tecnico'=>1])
+                    ->all(), 'id', 'nombres'),
+
+
+        ]) ?>
+    </div>
+
+
+
+
     <?= $form->field($model, 'cotizacion_id')->hiddenInput()->label(false) ?>
 
 

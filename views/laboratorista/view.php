@@ -12,9 +12,6 @@ $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="laboratorista-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a('Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Borrar', ['delete', 'id' => $model->id], [
@@ -34,7 +31,30 @@ $this->params['breadcrumbs'][] = $this->title;
             'cargo',
             'registro_msp',
             'registro_senescyt',
-            //'dbremove',
+            [   'attribute'=>"responsable_tecnico",
+                'label'=>'Responsable Tecnico',
+                'format'=>'raw',
+                'value'=>function ($model) {
+                     if($model->responsable_tecnico){ return Html::tag('div','SI',['class'=>'btn btn-primary']);}
+                     else{return Html::tag('div','NO',['class'=>'btn btn-secondary']);}
+
+                }
+            ],
+            [   'attribute'=>"firma_digital_fullname",
+                'label'=>'Firma Digital',
+                'format'=>'raw',
+                'value'=>function ($model) {
+                     return  $model->imagenFirmaDigital();
+                }
+            ],
+            [   'attribute'=>"dir_imagen_firma",
+                'label'=>'Firma Manual',
+                'format'=>'raw',
+                'value'=>function ($model) {
+                    return  $model->imageFirma();
+                }
+            ]
+
         ],
     ]) ?>
 

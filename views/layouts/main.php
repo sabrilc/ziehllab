@@ -21,6 +21,9 @@ $setting = Settings::findOne(1);
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" dir="ltr">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@latest/pace-theme-default.min.css">
+    <script> pace.start()</script>
   <meta  charset="<?= Yii::$app->charset ?>" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,12 +33,36 @@ $setting = Settings::findOne(1);
    <title><?= Html::encode($this->title) ?></title>
    <?php $this->head() ?>
     <style>
+        .pace {
+            -webkit-pointer-events: none;
+            pointer-events: none;
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        .pace-inactive {
+            display: none;
+        }
+
+        .pace .pace-progress {
+            background: #8d3319;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            right: 100%;
+            width: 100%;
+            height: 2px;
+        }
+
         .navbar-inverse {
             background-color: <?= $setting->primary_color ?>!important;
             color: #fff!important;
         }
         .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
-            color: #ffc100!important;
+            color: #fff!important;
+            font-size: 16px;
             background-color: <?= $setting->secondary_color ?>!important;
         }
         a {
@@ -63,7 +90,7 @@ $setting = Settings::findOne(1);
 </head>
 
  <?php $this->beginBody() ?>
-<body>
+<body class="wrapper">
 <?php
 NavBar::begin( [
               // 'brandLabel' => Html::img('@web/imagen/ziehl.png', ['alt'=>Yii::$app->name,'style'=>'max-height: 100%; height: 100%; -o-object-fit: contain; object-fit: contain;']),
@@ -196,8 +223,11 @@ NavBar::end();
                             }
                         }
                         ?>              
-                    
-    				 <?= $content ?>
+                     <div class="panel">
+                         <div class="panel-body" style="padding: 25px!important;">
+    				         <?= $content ?>
+                         </div>
+                     </div>
                  
                 </div>
                  
@@ -269,14 +299,13 @@ NavBar::end();
   </footer><!-- End Footer -->
 
   <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
-              
-
- 
+<div id="overlay">
+    <div class="loader"></div>
+</div>
 <?php $this->endBody() ?>
 </body>
 <?php $this->registerJs("
 setTimeout(function(){  $('#alert-flash').remove(); }, 3000);
-
 ")?>
 
 <?php $this->endPage() ?>

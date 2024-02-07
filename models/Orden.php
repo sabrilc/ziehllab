@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use common\Tools;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
@@ -22,6 +23,7 @@ use yii\db\Expression;
  * @property int $paciente_id
  * @property int $doctor_id
  * @property int $laboratorista_id
+ * @property int $responsable_tecnico_id
  * @property int $cotizacion_id
  * @property int $email_enviado
  * @property string $fecha_email_enviado
@@ -30,6 +32,8 @@ use yii\db\Expression;
  * @property string $updated_at
  * @property int $created_by
  * @property int $updated_by
+ * @property  bool $firmado_digitalmente
+ * @property  string $fecha_firmado_digital
  *
  * @property Cotizacion[] $cotizacions
  * @property Examen[] $examens
@@ -61,11 +65,13 @@ class Orden extends \yii\db\ActiveRecord
         return [
             [['fecha', 'fecha_email_enviado', 'created_at', 'updated_at','fecha_resultados','hora_resultados','_id'], 'safe'],
             [['precio', 'descuento', 'valor_total', 'abono'], 'number'],
-            [['pagado', 'cerrada','paciente_id', 'doctor_id', 'laboratorista_id', 'cotizacion_id', 'email_enviado', 'created_by', 'updated_by'], 'integer'],
+            [['pagado', 'cerrada','paciente_id', 'doctor_id', 'laboratorista_id', 'responsable_tecnico_id','cotizacion_id', 'email_enviado', 'created_by', 'updated_by'], 'integer'],
             [['codigo'], 'string', 'max' => 10],
             [['codigo_secreto'], 'string', 'max' => 6],
             [['token'], 'string', 'max' => 100],
+            [['firmado_digitalmente'], 'boolean'],
             [['paciente_info', 'solicitante_info'], 'string', 'max' => 100],
+            [['paciente_id', 'laboratorista_id', 'responsable_tecnico_id'], 'required', 'on' => 'nuevo'],
             [['paciente_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['paciente_id' => 'id']],           
             [['doctor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['doctor_id' => 'id']],
             [['cotizacion_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cotizacion::className(), 'targetAttribute' => ['cotizacion_id' => 'id']],
@@ -88,6 +94,7 @@ class Orden extends \yii\db\ActiveRecord
             'pagado' => 'Pagado',
             'cerrada' => 'Cerrada',
             'paciente_id' => 'Paciente',
+            'responsable_tecnico_id'=>'Responsable Técnico',
             'doctor_id' => 'Doctor',
             'cotizacion_id' => 'Cotizacion',
             'created_at' => 'Created At',
@@ -132,6 +139,8 @@ class Orden extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'paciente_id']);
     }
+
+
     
     /**
      * @return \yii\db\ActiveQuery
@@ -139,6 +148,11 @@ class Orden extends \yii\db\ActiveRecord
     public function getLaboratorista()
     {
         return $this->hasOne(Laboratorista::className(), ['id' => 'laboratorista_id']);
+    }
+
+    public function getResponsableTecnico()
+    {
+        return $this->hasOne(Laboratorista::className(), ['id' => 'responsable_tecnico_id']);
     }
     
     /**
@@ -168,10 +182,10 @@ class Orden extends \yii\db\ActiveRecord
     public function pdf($for_signer=false) {
 
          if( $for_signer){
-             $pdf= new PDF_ORDEN_ACCESS($this->id, true);
-             return base64_encode($pdf->Output('','S'));
+             $pdf= new PDF_ORDEN_ACCESS($this, true);
+             return ($pdf->Output('','S'));
          }else{
-             $pdf= new PDF_ORDEN_ACCESS($this->id);
+             $pdf= new PDF_ORDEN_ACCESS($this);
              return $pdf->Output('','ORDEN_'.$this->codigo.'.pdf');
          }
 
@@ -275,10 +289,10 @@ class Orden extends \yii\db\ActiveRecord
     public static  function nueva() {
         $connection = \Yii::$app->db;
         $transaction = $connection->beginTransaction();
-        try {           
-            $model = new Orden();
-            if(isset(Yii::$app->request->post()['analisis'])){
-                if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $model = new Orden();
+        $model->setScenario('nuevo');
+        try {
+                if (isset(Yii::$app->request->post()['analisis']) && $model->load(Yii::$app->request->post()) && $model->save()) {
                     $examenesSeleccionados=  Yii::$app->request->post()['analisis'];
                     foreach ($examenesSeleccionados as $examen) {
                         $analisis=Analisis::findOne($examen);
@@ -312,10 +326,6 @@ class Orden extends \yii\db\ActiveRecord
                     Registro::onCreated($model);
                                        
                 }
-                
-            }
-                     
-            
             $transaction->commit();
         } catch(Exception $e) {
             $transaction->rollback();
@@ -332,6 +342,84 @@ class Orden extends \yii\db\ActiveRecord
     
     private function generateToken() {
         $this->token = base64_encode( sha1(uniqid($this->codigo,true), false) );
+    }
+
+    public function firmarDigitalmente(){
+        $this->fecha_firmado_digital = date("Y-m-d H:i:s" );
+        $this->firmado_digitalmente = true;
+        $pdf_binary = $this->pdf(true);
+        $tmpfname = tempnam('', "LAB");
+        $handle = fopen($tmpfname, "w");
+        fwrite($handle, $pdf_binary);
+        fclose($handle);
+        $url = \Yii::$app->params['signature_api'].'/api/sign/pdf';
+        $files = [ $tmpfname];
+        $secrets=[$this->fecha_firmado_digital];
+        if( is_null( $this->laboratorista_id ) || $this->laboratorista_id == 0){
+            return json_encode(["errors"=>true, "message"=> "La orden No.".$this->codigo." debe tener asignado un laboratorista"]);
+        }
+        $laboratorista =$this->laboratorista;
+
+        if ( !Tools::validP12File( __DIR__."/../".$laboratorista->dir_firma_digital)){
+            return json_encode(["errors"=>true, "message"=> $laboratorista->nombres. " no tiene firma digital"]);
+        }
+        $files[]=__DIR__."/../".$laboratorista->dir_firma_digital;
+        $secrets[]=$laboratorista->firma_digital_secret;
+
+
+        if( is_null( $this->responsable_tecnico_id )  || $this->responsable_tecnico_id == 0){
+            return json_encode(["errors"=>true, "message"=> "La orden No.".$this->codigo." debe tener asignado un responsable técnico"]);
+        }
+
+        $tecnico =$this->responsableTecnico;
+        if ( !Tools::validP12File( __DIR__."/../".$tecnico->dir_firma_digital)){
+            return json_encode(["errors"=>true, "message"=> $tecnico->nombres. "no tiene firma digital"]);
+        }
+        $files[]=__DIR__."/../".$tecnico->dir_firma_digital;
+        $secrets[]=$tecnico->firma_digital_secret;
+
+        foreach ($files as $index => $file) {
+            $postData['file_'.$index]= curl_file_create(realpath($file), mime_content_type($file),  basename($file));
+        }
+
+        foreach ($secrets as $index=> $secret){
+            $postData['secret_'.$index] = $secret;
+        }
+
+
+
+        $request = curl_init($url);
+        curl_setopt($request, CURLOPT_POST, true);
+        curl_setopt($request, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($request, CURLOPT_VERBOSE, 0);
+        $result = curl_exec($request);
+
+        if ($result === false) {
+            error_log(curl_error($request));
+        }
+
+        curl_close($request);
+
+        $response= json_decode($result);
+        Tools::removeFile($tmpfname);
+        if ( $response->errors){
+            return $result;
+        }else{
+            $fp = fopen(__DIR__.'/../media/ordenes/'. $this->codigo.'.pdf', 'w');
+            fwrite($fp, base64_decode($response->pdf));
+            fclose($fp);
+            $this->save();
+            return json_encode(["errors"=>false, "message"=>"Documento Firmado Satisfactoriamente"]);
+        }
+
+    }
+
+    public function borrarDocumentoFirmado(){
+        Tools::removeFile(__DIR__.'/../media/ordenes/'. $this->codigo.'.pdf');
+        $this->firmado_digitalmente = false;
+        $this->fecha_firmado_digital = null;
+        $this->save();
     }
    
 }

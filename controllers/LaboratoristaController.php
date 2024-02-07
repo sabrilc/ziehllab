@@ -8,6 +8,7 @@ use app\models\LaboratoristaSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * LaboratoristaController implements the CRUD actions for Laboratorista model.
@@ -92,9 +93,18 @@ class LaboratoristaController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        unset($model->firma_digital_secret);
+        if ($model->load(Yii::$app->request->post())) {
+            if( strlen($model->firma_digital_secret) < 3 ){
+                unset($model->firma_digital_secret);
+            }
+            $model->save();
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            $model->p12File = UploadedFile::getInstance($model, 'p12File');
+            $model->upload();
+            if( empty($model->errors)) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [

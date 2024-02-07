@@ -40,6 +40,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'fecha',
             'paciente.nombreCompleto:text:Paciente',
             'doctor.nombreCompleto:text:Doctor',
+            'laboratorista.nombreCompleto:text:Laboratorista',
+            'responsableTecnico.nombreCompleto:text:Responsable Tecnico',
             'precio',
             [
                 'attribute'  => 'descuento',

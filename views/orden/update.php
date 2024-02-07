@@ -51,9 +51,18 @@ $this->params['breadcrumbs'][] = 'Editar';
          Laboratorista::find()
                              ->where(['dbremove'=>false])
                              ->all(), 'id', 'nombres'),
-     ]) ?>  
-     
-     
+     ]) ?>
+
+    <?= $form->field($model, 'responsable_tecnico_id')->widget( Select2::class, [
+        'options'=>['placeholder'=>'Buscar ...'],
+        'data' =>  ArrayHelper::map(
+            Laboratorista::find()
+                ->where(['dbremove'=>false])
+                ->andWhere(['responsable_tecnico'=>1])
+                ->all(), 'id', 'nombres'),
+    ]) ?>
+
+
     <div class="form-group">
         <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
     </div>

@@ -4,6 +4,7 @@ namespace app\models;
 use Da\QrCode\QrCode;
 use inquid\pdf\FPDF;
 use yii\db\Expression;
+use function GuzzleHttp\Psr7\str;
 
 
 class PDF_ORDEN_ACCESS extends FPDF
@@ -14,8 +15,9 @@ class PDF_ORDEN_ACCESS extends FPDF
     public $orden;
     public $paciente;
     public $doctor;
+    public $laboratorista;
+    public $responsableTecnico;
     public $analisis;
-    
     public $secciones;
     public $font;
     public $font_title_size;
@@ -35,9 +37,8 @@ class PDF_ORDEN_ACCESS extends FPDF
 	private $antiSarsCov2;
 	private $rTPCRtiempoReal;
     
-    public function __construct($orden_id,$for_sign=false){
-        $this->digital_sign = true;
-
+    public function __construct($orden,$for_sign=false){
+        $this->digital_sign = $for_sign;
         $this->rapidTestIgm = false;
 		$this->rapidTestIgg = false;
         $this->hisopadoAntigeno = true;
@@ -48,9 +49,11 @@ class PDF_ORDEN_ACCESS extends FPDF
 		$this->rTPCRtiempoReal = true;
 		
         $this->empresa = Empresa::findOne(1);
-        $this->orden=Orden::findOne($orden_id);    
+        $this->orden=$orden;
         $this->paciente=$this->orden->paciente;
         $this->doctor=$this->orden->doctor;
+        $this->laboratorista = $this->orden->laboratorista;
+        $this->responsableTecnico = $this->orden->responsableTecnico;
         if( $this->digital_sign){
             if( $this->orden->fecha_resultados ==''){ $this->orden->fecha_resultados = new Expression(" current_date");$this->orden->save(); }
             if( $this->orden->hora_resultados ==''){ $this>$this->orden->hora_resultados = new Expression(" current_time");$this->orden->save(); }
@@ -127,7 +130,7 @@ class PDF_ORDEN_ACCESS extends FPDF
         $y= $this->GetY();
         $this->SetFont($this->font,'',$this->font_body_size);
         if( !empty($this->orden->laboratorista_id ) && $this->orden->laboratorista_id <> 2 ){
-            $laboratorista = $this->orden->laboratorista;
+            $laboratorista = $this->laboratorista;
             $this->Cell(90,3,utf8_decode( $laboratorista->nombres), $this->debug ,0,'C');
             $this->Ln();
             $this->SetX($this->line_begin);
@@ -138,21 +141,22 @@ class PDF_ORDEN_ACCESS extends FPDF
             $this->MultiCell(50,3,utf8_decode('Responsable de la emisión de los resultados de la prueba'), $this->debug,'C');
         }
             if( $this->digital_sign){
-                $url =  utf8_encode("FIRMADO POR: ".$laboratorista->digitalsign_nombres . " " . $laboratorista->digitalsign_apellidos.
-                    chr(10)."FECHA: ".$this->orden->fecha_resultados. " ".$this->orden->hora_resultados);
-                $qrCode = (new QrCode($url));
-                $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                $this->Image($qrCode->writeDataUri(),$this->line_begin,$y-20,20,20,'png');
-                $this->SetXY($this->line_begin + 20,$y-16);
-                $this->SetFont($this->font_sign,'',$this->font_body_size);
-                $this->Cell(90,1,utf8_decode("Firmado electrónicamente por:"), $this->debug ,0,'J');
-                $this->ln(1);
-                $this->SetFont($this->font_sign,'B',$this->font_title_size);
-                $this->SetXY($this->line_begin + 20,$y-14);
-                $this->MultiCell(105,4,utf8_decode($laboratorista->digitalsign_nombres. chr(10).$laboratorista->digitalsign_apellidos),$this->debug ,'J',0);
-
+                if( strlen($laboratorista->firma_digital_fullname) > 0) {
+                    $url = utf8_encode("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                        chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
+                    $qrCode = (new QrCode($url));
+                    $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                    $this->Image($qrCode->writeDataUri(), $this->line_begin, $y - 20, 20, 20, 'png');
+                    $this->SetXY($this->line_begin + 20, $y - 16);
+                    $this->SetFont($this->font_sign, '', $this->font_body_size);
+                    $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
+                    $this->ln(1);
+                    $this->SetFont($this->font_sign, 'B', $this->font_title_size);
+                    $this->SetXY($this->line_begin + 20, $y - 14);
+                    $this->MultiCell(105, 4, utf8_decode($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
+                }
             }else{
-            $urlImage = __DIR__.'/../imagen/firmas/'.$laboratorista->dir_imagen_firma;
+            $urlImage = __DIR__.'/../'.$laboratorista->dir_imagen_firma;
             if (@getimagesize($urlImage)) {
                 $this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
             }}
@@ -160,7 +164,7 @@ class PDF_ORDEN_ACCESS extends FPDF
 
         $this->SetY($y);
         $this->SetFont($this->font,'',$this->font_body_size);
-        $responsableTecnico = Laboratorista::findOne(7);
+        $responsableTecnico = $this->responsableTecnico;
         if( !is_null($responsableTecnico)){
             $this->SetX(100);
             $this->Cell(90,3,utf8_decode( $responsableTecnico->nombres), $this->debug ,0,'C');
@@ -173,24 +177,25 @@ class PDF_ORDEN_ACCESS extends FPDF
             $this->MultiCell(50,3,utf8_decode('Firma del profesional que valida la prueba'), $this->debug,'C');
 
             if( $this->digital_sign){
-                $url =  utf8_encode("FIRMADO POR: ".$responsableTecnico->digitalsign_nombres . " " . $responsableTecnico->digitalsign_apellidos.
-                    chr(10)."FECHA: ".$this->orden->fecha_resultados. " ".$this->orden->hora_resultados);
-                $qrCode = (new QrCode($url));
-                $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                $this->Image($qrCode->writeDataUri(),120,$y-20,20,20,'png');
-                $this->SetXY(140,$y-16);
-                $this->SetFont($this->font_sign,'',$this->font_body_size);
-                $this->Cell(90,1,utf8_decode("Firmado electrónicamente por:"), $this->debug ,0,'J');
-                $this->ln(1);
-                $this->SetFont($this->font_sign,'B',$this->font_title_size);
-                $this->SetXY(140,$y-14);
-                $this->MultiCell(105,4,utf8_decode($responsableTecnico->digitalsign_nombres. chr(10).$responsableTecnico->digitalsign_apellidos),$this->debug ,'J',0);
-
+                if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
+                    $url = utf8_encode("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
+                        chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
+                    $qrCode = (new QrCode($url));
+                    $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                    $this->Image($qrCode->writeDataUri(), 120, $y - 20, 20, 20, 'png');
+                    $this->SetXY(140, $y - 16);
+                    $this->SetFont($this->font_sign, '', $this->font_body_size);
+                    $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
+                    $this->ln(1);
+                    $this->SetFont($this->font_sign, 'B', $this->font_title_size);
+                    $this->SetXY(140, $y - 14);
+                    $this->MultiCell(105, 4, utf8_decode($this->subjectSignature($responsableTecnico->firma_digital_fullname)), $this->debug, 'J', 0);
+                }
             }
             else {
 
                 $this->SetX(100);
-                $urlImage = __DIR__ . '/../imagen/firmas/' . $responsableTecnico->dir_imagen_firma;
+                $urlImage = __DIR__.'/../'.$responsableTecnico->dir_imagen_firma;
                 if (@getimagesize($urlImage)) {
                     //$this->Image( $urlImage, $this->GetX()+25, $this->GetY() - 25,40,  20,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
                     $this->Image($urlImage, $this->GetX() + 17, $this->GetY() - 28, 60, 30, pathinfo($urlImage, PATHINFO_EXTENSION));
@@ -497,45 +502,80 @@ class PDF_ORDEN_ACCESS extends FPDF
                         $y= $this->GetY();
                         $this->SetFont($this->font,'',$this->font_body_size);                       
                         if( !empty($this->orden->laboratorista_id ) && $this->orden->laboratorista_id <> 2 ){
-                            $laboratorista = $this->orden->laboratorista;                          
+                            $laboratorista = $this->laboratorista;
                             $this->Cell(90,3,utf8_decode( $laboratorista->nombres), $this->debug ,0,'C');
                             $this->Ln();
-							$urlImage = __DIR__.'/../imagen/firmas/'.$laboratorista->dir_imagen_firma;
-							if (@getimagesize($urlImage)) {
-								//$this->Image( $urlImage, $this->GetX()+25, $this->GetY() - 25,40,  20,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
-								$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
-							}
-							
-                            $this->Cell(90,3,utf8_decode('Rg. ACESS. '. $laboratorista->identificacion), $this->debug,0,'C');
+							$this->Cell(90,3,utf8_decode('Rg. ACESS. '. $laboratorista->identificacion), $this->debug,0,'C');
                             $this->Ln(); 
                             $this->SetFont($this->font,'B',$this->font_body_size);
                             $this->SetX(30);
                             $this->MultiCell(50,3,utf8_decode('Responsable de la emisión de los resultados de la prueba'), $this->debug,'C');
+							 if( $this->digital_sign){
+                                 if( strlen($laboratorista->firma_digital_fullname) > 0) {
+                                     $url = utf8_encode("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                                         chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
+                                     $qrCode = (new QrCode($url));
+                                     $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                                     $this->Image($qrCode->writeDataUri(), $this->line_begin + 5, $y - 20, 20, 20, 'png');
+                                     $this->SetXY($this->line_begin + 25, $y - 16);
+                                     $this->SetFont($this->font_sign, '', $this->font_body_size);
+                                     $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
+                                     $this->ln(1);
+                                     $this->SetFont($this->font_sign, 'B', $this->font_title_size);
+                                     $this->SetXY($this->line_begin + 25, $y - 14);
+                                     $this->MultiCell(105, 4, utf8_decode($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
+                                 }
+							}else{
+							$urlImage = __DIR__.'/../'.$laboratorista->dir_imagen_firma;
+							if (@getimagesize($urlImage)) {
+								$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 34,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
+								}
+							}						
+                            
                         }
                         
                         $this->SetY($y);
                         $this->SetFont($this->font,'',$this->font_body_size); 
-                        $responsableTecnico = Laboratorista::findOne(7);						
+                        $responsableTecnico = $this->responsableTecnico;
                         if( !is_null($responsableTecnico)){                          
                             $this->SetX(100);
                             $this->Cell(90,3,utf8_decode( $responsableTecnico->nombres), $this->debug ,0,'C');                            
                             $this->Ln();
                             $this->SetX(100);
-							$urlImage = __DIR__.'/../imagen/firmas/'.$responsableTecnico->dir_imagen_firma;
-							if (@getimagesize($urlImage)) {
-								//$this->Image( $urlImage, $this->GetX()+25, $this->GetY() - 25,40,  20,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
-								$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
-							}
-                            $this->Cell(90,3,utf8_decode('Rg. ACESS. '.$responsableTecnico->identificacion), $this->debug,0,'C');
+							 $this->Cell(90,3,utf8_decode('Rg. ACESS. '.$responsableTecnico->identificacion), $this->debug,0,'C');
                             $this->Ln();
-                           // $this->SetX(100);
-                           // $this->Cell(90,3,utf8_decode( $responsableTecnico->registro_senescyt), $this->debug,0,'C');
-                          //  $this->Ln();
                             $this->SetX(120);
                             $this->SetFont($this->font,'B',$this->font_body_size);
                             $this->MultiCell(50,3,utf8_decode('Firma del profesional que valida la prueba'), $this->debug,'C');
+							   if( $this->digital_sign){
+                                   if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
+                                       $url = utf8_encode("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
+                                           chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
+                                       $qrCode = (new QrCode($url));
+                                       $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                                       $this->Image($qrCode->writeDataUri(), 120, $y - 20, 20, 20, 'png');
+                                       $this->SetXY(140, $y - 16);
+                                       $this->SetFont($this->font_sign, '', $this->font_body_size);
+                                       $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
+                                       $this->ln(1);
+                                       $this->SetFont($this->font_sign, 'B', $this->font_title_size);
+                                       $this->SetXY(140, $y - 14);
+                                       $this->MultiCell(105, 4, utf8_decode($this->subjectSignature($responsableTecnico->firma_digital_fullname)), $this->debug, 'J', 0);
+                                   }
+								}
+								else {
+									$this->SetX(100);
+									$urlImage = __DIR__.'/../'.$responsableTecnico->dir_imagen_firma;
+									if (@getimagesize($urlImage)) {
+										$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 34,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
+									}
+								}
+							
+							
+                           
                         }
-                        $this->ln(7);                        
+
+                        $this->ln(25);
                       
                         $y = $this->GetY();   
                         if( strlen($this->orden->token)>50 ){
@@ -813,22 +853,24 @@ class PDF_ORDEN_ACCESS extends FPDF
             $this->SetX($this->line_begin);
             $this->Cell(140, 3, utf8_decode($laboratorista->cargo), 0, 0, 'C');
         if($this->digital_sign){
-            $url =  utf8_encode("FIRMADO POR: ".$laboratorista->digitalsign_nombres . " " . $laboratorista->digitalsign_apellidos.
-                chr(10)."FECHA: ".$this->orden->fecha_resultados. " ".$this->orden->hora_resultados);
-            $qrCode = (new QrCode($url));
-            $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-            $this->Image($qrCode->writeDataUri(), $this->line_begin+40, $y - 20, 20, 20, 'png');
-            $this->SetXY($this->line_begin+60, $y - 16);
-            $this->SetFont($this->font_sign, '', $this->font_body_size);
-            $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
-            $this->ln(1);
-            $this->SetFont($this->font_sign, 'B', $this->font_title_size);
-            $this->SetXY($this->line_begin+60, $y - 14);
-            $this->MultiCell(105, 4, utf8_decode($laboratorista->digitalsign_nombres . chr(10) . $laboratorista->digitalsign_apellidos), $this->debug, 'J', 0);
+            if( strlen($laboratorista->firma_digital_fullname) > 0) {
+                $url = utf8_encode("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                    chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
+                $qrCode = (new QrCode($url));
+                $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
+                $this->Image($qrCode->writeDataUri(), $this->line_begin + 40, $y - 20, 20, 20, 'png');
+                $this->SetXY($this->line_begin + 60, $y - 16);
+                $this->SetFont($this->font_sign, '', $this->font_body_size);
+                $this->Cell(90, 1, utf8_decode("Firmado electrónicamente por:"), $this->debug, 0, 'J');
+                $this->ln(1);
+                $this->SetFont($this->font_sign, 'B', $this->font_title_size);
+                $this->SetXY($this->line_begin + 60, $y - 14);
+                $this->MultiCell(105, 4, utf8_decode($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
+            }
         }else {
-            $urlImage = __DIR__ . '/../imagen/firmas/' . $laboratorista->dir_imagen_firma;
+            $urlImage =  __DIR__.'/../'.$laboratorista->dir_imagen_firma;;
             if (@getimagesize($urlImage)) {
-                $this->Image($urlImage, $this->GetX() + 45, $this->GetY() - 28, 60, 30, pathinfo($urlImage, PATHINFO_EXTENSION));
+                $this->Image($urlImage, $this->line_begin + 45, $this->GetY() - 32, 60, 30, pathinfo($urlImage, PATHINFO_EXTENSION));
             }
 
         }
@@ -837,6 +879,22 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->SetXY(165,288);
         $this->Cell(0,10,'Pagina '.$this->PageNo().'',0,0,'C');
         }
+    }
+
+    private function subjectSignature($subject)
+    {
+        $words = explode(" ",$subject);
+        $fullname='';
+        $i=0;
+        foreach ( $words as $word){
+            $fullname .= $word." ";
+            $i++;
+            if($i >1){
+                $fullname .= chr(10);
+                $i=0;
+            }
+        }
+        return $fullname;
     }
     
     public function tableHead(){             
