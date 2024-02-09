@@ -39,9 +39,11 @@ class Tools
     }
 
     public static function removeFile($path) {
-        if (file_exists($path)) {
-            return unlink($path);
-        }
+		 try {
+				if (file_exists($path)) {
+					return unlink($path);
+				}
+		 }catch ( \Exception $e){}
     }
 
     public static function validP12File($path) {
