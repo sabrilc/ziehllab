@@ -37,6 +37,7 @@ tests/_support/_generated
 /archivador/*
 /uploads/*
 /media/signatures/*
+/media/ordenes/*
 /javaScript/node_modules/*
 /runtime/*
 /themes/AdminLTE-3.2.0/node_modules/*
