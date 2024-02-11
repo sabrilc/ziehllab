@@ -23,7 +23,6 @@ $setting = Settings::findOne(1);
 <head>
     <script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@latest/pace-theme-default.min.css">
-    <script> pace.start()</script>
   <meta  charset="<?= Yii::$app->charset ?>" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -105,11 +104,13 @@ echo Nav::widget([
         ['label' =>  '<span class="nav-text">CONTACTO</span>','encode' => false, 'url' => ['/site/contacto'], 'visible'=> Yii::$app->user->isGuest ],
         
         
-        ['label' =>  '<span class="nav-text">Cotizaciones</span>','encode' => false, 'url' => ['/cotizacion/index'],'visible'=> \Yii::$app->user->can('operador')],
+
         ['label' => '<span class="nav-text">Ordenes</span>','encode' => false, 'url' => ['/orden/index'],'visible'=> \Yii::$app->user->can('operador')],
-		['label' => '<span class="nav-text">Previsualización de Ordenes </span>','encode' => false, 'url' => ['/orden/index-con-analisis'],'visible'=> \Yii::$app->user->can('operador')],
         ['label' => '<span class="nav-text">Ingreso de Resultados</span>','encode' => false, 'url' => ['/orden/ingreso-resultado'],'visible'=> \Yii::$app->user->can('operador')],
+		['label' => '<span class="nav-text">Previsualización de Ordenes </span>','encode' => false, 'url' => ['/orden/index-con-analisis'],'visible'=> \Yii::$app->user->can('operador')],
+
         ['label' =>  '<span class="nav-text">Historial</span>','encode' => false, 'url' => ['/historial'],'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false ],
+        ['label' =>  '<span class="nav-text">Cotizaciones</span>','encode' => false, 'url' => ['/cotizacion/index'],'visible'=> \Yii::$app->user->can('operador')],
         [
             'label' => 'Usuarios',
             'items' => [                

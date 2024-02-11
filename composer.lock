@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bfe63a9e30a4e939d28f5a9c55df4557",
+    "content-hash": "b610ef06c7e86957cd23a23c0e898a0e",
     "packages": [
         {
             "name": "2amigos/qrcode-library",
@@ -147,7 +147,7 @@
             "version": "v3.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/twbs/bootstrap.git",
+                "url": "git@github.com:twbs/bootstrap.git",
                 "reference": "68b0d231a13201eb14acd3dc84e51543d16e5f7e"
             },
             "dist": {
@@ -722,16 +722,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "8.13.29",
+            "version": "8.13.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "b8fa0daf0c27bb6fdb5940e0288f203be7e5cfd4"
+                "reference": "e09260a4a470b3737877c0f04f964e8a4938ebbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/b8fa0daf0c27bb6fdb5940e0288f203be7e5cfd4",
-                "reference": "b8fa0daf0c27bb6fdb5940e0288f203be7e5cfd4",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/e09260a4a470b3737877c0f04f964e8a4938ebbd",
+                "reference": "e09260a4a470b3737877c0f04f964e8a4938ebbd",
                 "shasum": ""
             },
             "require": {
@@ -790,7 +790,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2024-01-26T08:49:18+00:00"
+            "time": "2024-02-09T12:16:23+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -2062,16 +2062,16 @@
         },
         {
             "name": "luyadev/luya-core",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/luyadev/luya-core.git",
-                "reference": "195453b00d1ca33eb241b7518db4e91ef04d4a5c"
+                "reference": "1d7b837cedeecf4c72096135f3cc291c825486f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luyadev/luya-core/zipball/195453b00d1ca33eb241b7518db4e91ef04d4a5c",
-                "reference": "195453b00d1ca33eb241b7518db4e91ef04d4a5c",
+                "url": "https://api.github.com/repos/luyadev/luya-core/zipball/1d7b837cedeecf4c72096135f3cc291c825486f0",
+                "reference": "1d7b837cedeecf4c72096135f3cc291c825486f0",
                 "shasum": ""
             },
             "require": {
@@ -2114,9 +2114,9 @@
             ],
             "support": {
                 "issues": "https://github.com/luyadev/luya/issues",
-                "source": "https://github.com/luyadev/luya-core/tree/2.3.0"
+                "source": "https://github.com/luyadev/luya-core/tree/2.3.1"
             },
-            "time": "2023-04-20T08:23:17+00:00"
+            "time": "2024-02-07T13:19:25+00:00"
         },
         {
             "name": "luyadev/yii-helpers",
@@ -8093,9 +8093,9 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.2.0",
+        "php": ">=7.4.0",
         "ext-soap": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

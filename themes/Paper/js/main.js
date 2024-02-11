@@ -19,7 +19,5 @@ yii.confirm = function (message, okCallback, cancelCallback) {
             }
         },
         closeOnClickOutside: true
-    }).then((selection) => {
-        if(selection){okCallback;}else{cancelCallback;}
-    });
+    }).then( selection => { if(selection){okCallback();}else{cancelCallback();} });
 }

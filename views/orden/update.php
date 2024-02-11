@@ -1,5 +1,6 @@
 <?php
 
+use app\models\ClienteSearch;
 use app\models\Examen;
 use app\models\Laboratorista;
 use app\models\Secretaria;
@@ -7,6 +8,7 @@ use app\models\TipoAnalisis;
 use app\models\User;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
 use app\models\Analisis;
 use kartik\select2\Select2;
@@ -18,12 +20,50 @@ $this->title = 'Editar Orden: ' . $model->codigo;
 $this->params['breadcrumbs'][] = ['label' => 'Ordenes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->codigo, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Editar';
+
+$pacientes =[];
+$pacienteSelected=null;
+if($model->paciente_id){
+    $pacientes = ArrayHelper::map( ClienteSearch::find()->where(['id'=>$model->paciente_id])->all(), 'id','nombreCompleto');
+    $pacienteSelected=$model->paciente_id;
+}
 ?>
 <div class="orden-update">
      <?php $form = ActiveForm::begin(); ?>
 <div class="orden-create">
 
-<?= $form->field($model, 'paciente_id')->widget( Select2::class, [
+<?= $form->field($model, 'paciente_id')->widget(Select2::class, [
+    'initValueText' => $pacientes,// array of text to show in the tag for the selected items
+    'showToggleAll' => false,
+    'options' => ['placeholder' => 'Buscar',
+        //'tags' => true,
+        'multiple' =>false,
+        'value' => $pacienteSelected, // array of Id of the selected items
+        'class' => 'validate'
+    ],
+    'pluginOptions' => [
+        'tags' => true,
+        'tokenSeparators' => [','],
+        'allowClear' => false,
+        'minimumInputLength' => 1,
+        'language' => [
+            'errorLoading' => new JsExpression("function () { return 'Waiting for results...'; }"),
+        ],
+        'ajax' => [
+            'url' => \yii\helpers\Url::to(['orden/paciente-list']),
+            'dataType' => 'json',
+            'data' => new JsExpression('function(params) {return {q:params.term}; }')
+        ],
+        'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+        'templateResult' => new JsExpression('function(data) {return data.text; }'),
+        'templateSelection' => new JsExpression('function (data) {  return data.text; }'),
+    ],
+]);
+
+
+?>
+
+<?php /* $form->field($model, 'paciente_id')->widget( Select2::class, [
     'options'=>['placeholder'=>'Buscar ...'],
     'data' => ArrayHelper::map(
         User::find()
@@ -31,7 +71,7 @@ $this->params['breadcrumbs'][] = 'Editar';
         ->where(['item_name'=>'cliente'])
         ->all(), 'id', 'nombreCompleto'),   
     
-     ]) ?>
+     ])*/ ?>
      
      <?= $form->field($model, 'doctor_id')->widget( Select2::class, [
      'options'=>['placeholder'=>'Buscar ...'],
@@ -43,7 +83,9 @@ $this->params['breadcrumbs'][] = 'Editar';
          ->innerJoin('auth_assignment','user.id=auth_assignment.user_id')
          ->where(['item_name'=>'medico'])
          ->all(), 'id', 'nombreCompleto'),
-     ]) ?>  
+     ]) ?>
+
+
      
        <?= $form->field($model, 'laboratorista_id')->widget( Select2::class, [
      'options'=>['placeholder'=>'Buscar ...'],
@@ -64,7 +106,7 @@ $this->params['breadcrumbs'][] = 'Editar';
 
 
     <div class="form-group">
-        <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('Guardar', ['class' => 'btn btn-primary']) ?>
     </div>
 
 </div>

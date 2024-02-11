@@ -13,6 +13,7 @@ class OrdenSearch extends Orden
 {
     public $paciente;
     public $doctor;
+    public $_examenes;
     
    /**
      * {@inheritdoc}
@@ -50,6 +51,7 @@ class OrdenSearch extends Orden
         $query->joinWith(['paciente']);
         
         $query->join('left outer join', 'user as doctor','doctor.id=orden.doctor_id');
+
         
         // add conditions that should always apply here
 

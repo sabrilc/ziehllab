@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Analisis;
 use app\models\Antibiotico;
+use app\models\ClienteSearch;
 use app\models\Examen;
 use app\models\ExamenGermen;
 use app\models\ExamenGermenAntibiotico;
@@ -17,6 +18,7 @@ use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -37,7 +39,7 @@ class OrdenController extends Controller
                 'class' => \yii\filters\AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index','index-con-analisis','nueva','create','update','view','delete','clientes','add-cliente',
+                        'actions' => ['index','index-con-analisis','nueva','create','update','paciente-list','view','delete','clientes','add-cliente',
                                       'borra-agente-cultivo','ingreso-resultado',
                                       'guardar-resultados','imprimir-resultado','ver-resultado',
                                       'finalizar','guardar-prueba-sensiblidad','guardar-germen','borrar-germen',
@@ -647,6 +649,28 @@ class OrdenController extends Controller
         
        }
 
+    public function actionPacienteList($q=null,$id=null)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;//restituisco json
+        $out = ['results' => ['id' => '', 'text' => '']];
+        if (!is_null($q)) {
+            $clientes = ClienteSearch::find($id)->where(['like','nombres',$q])->all();
+
+            $response=[];
+            foreach ($clientes as $cliente) {
+                $response[] = ['id'=>$cliente->id,'text'=> $cliente->nombres];
+            }
+            $out['results']=$response;
+
+        }
+        elseif ($id > 0) {
+            $out['results'] = ['id' => $id, 'text' => ClienteSearch::find($id)->nombreCompleto];
+        }
+
+        return $out;
+    }
+
+
        public function actionNueva()
        {
            
@@ -721,6 +745,9 @@ class OrdenController extends Controller
                     $model->precio = Examen::find()->where(['orden_id'=>$model->id])->sum('precio');
                     
                     $model->valor_total = $model->precio;
+                    $model->firmado_digitalmente = false;
+                    $model->fecha_firmado_digital = null;
+                    $model->borrarDocumentoFirmado();
                     Registro::onUpdated($model);
                     
                     

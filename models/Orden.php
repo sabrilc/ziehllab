@@ -47,6 +47,8 @@ class Orden extends \yii\db\ActiveRecord
     public $resultado;
     
     public $_id;
+
+    public $_examenes;
     
 
     /**
@@ -63,7 +65,7 @@ class Orden extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['fecha', 'fecha_email_enviado', 'created_at', 'updated_at','fecha_resultados','hora_resultados','_id'], 'safe'],
+            [['fecha', 'fecha_email_enviado', 'created_at', 'updated_at','fecha_resultados','hora_resultados','_id','_examenes'], 'safe'],
             [['precio', 'descuento', 'valor_total', 'abono'], 'number'],
             [['pagado', 'cerrada','paciente_id', 'doctor_id', 'laboratorista_id', 'responsable_tecnico_id','cotizacion_id', 'email_enviado', 'created_by', 'updated_by'], 'integer'],
             [['codigo'], 'string', 'max' => 10],

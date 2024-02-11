@@ -235,8 +235,8 @@ class PDF_ORDEN_ACCESS extends FPDF
     
     private function encabezadoAccessLab(){
 	   $this->checkY();
-	   $this->Image(__DIR__.'/../imagen/AccessLab_a4.png',0,0,210,297,'png');
-       $this->Image(__DIR__.'/../imagen/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
+	   $this->Image(__DIR__.'/../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
+       $this->Image(__DIR__.'/../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
         $this->SetXY( $this->line_begin + 75, 10);
       //  $this->SetFont($this->font,'B',$this->font_body_size);
       //  $this->Cell(90,5,utf8_decode($this->empresa->razon_social),$this->debug,0,'L');
@@ -315,8 +315,8 @@ class PDF_ORDEN_ACCESS extends FPDF
 
     private function encabezadoForPanel(){
         $this->checkY();
-        $this->Image(__DIR__.'/../imagen/AccessLab_a4.png',0,0,210,297,'png');
-        $this->Image(__DIR__.'/../imagen/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
+        $this->Image(__DIR__.'/../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
+        $this->Image(__DIR__.'/../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
         $this->SetXY( $this->line_begin + 75, 10);
         $this->SetFont($this->font,'',$this->font_body_size);
         $y = $this->GetY();
@@ -575,26 +575,28 @@ class PDF_ORDEN_ACCESS extends FPDF
                            
                         }
 
-                        $this->ln(25);
-                      
-                        $y = $this->GetY();   
+                        $this->ln();
+
+                        $y = 210;
+                            $this->setY($y );
                         if( strlen($this->orden->token)>50 ){
                             $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
                             $qrCode = (new QrCode($url));
                         } else{ 
                             $qrCode = (new QrCode($this->orden->codigo));
                         }
-                        
+
                         $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                        $this->Image($qrCode->writeDataUri(),$this->line_begin+20,$y,45,45,'png');
-                        
-						$testQR =  utf8_decode( trim( $this->examen->analisis->acess_qr_text ) );
-						if( strlen( $testQR )> 0){
-							$qrCode =  ( new QrCode( $testQR ) );
-							$qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-							$this->Image($qrCode->writeDataUri(),123,$y,45,45,'png');
-						}
-						$this->ln(100);
+                        $this->Image($qrCode->writeDataUri(),$this->line_begin,$y+20,20,20,'png');
+                        $y = $y+40;
+                        $this->SetXY($this->line_begin + 20,$y-16);
+                        $this->Cell(90,1,utf8_decode("ziehllab.com"), $this->debug ,0,'J');
+                        $this->ln(1);
+                        $this->SetFont($this->font,'',$this->font_body_size);
+                        $this->SetXY($this->line_begin + 20,$y-14);
+                        $this->MultiCell(105,4,utf8_decode('Escanea este codigo QR'. chr(10).'para visualizar el documento  digital'),$this->debug ,'J',0);
+
+                        $this->ln(100);
                     }
                     
                 }
@@ -760,7 +762,7 @@ class PDF_ORDEN_ACCESS extends FPDF
     public function Header(){
         if( !$this->impresionAccessLab() or ! $this->impresionPanel()){
 		$this->SetDrawColor( 0, 0, 0 );
-        $this->Image(__DIR__.'/../imagen/a4.png',0,0,210,297,'png');
+        $this->Image(__DIR__.'/../media/imagen/app/a4.png',0,0,210,297,'png');
         $this->SetXY($this->line_begin,46);
         $this->SetFont($this->font,'B',$this->font_body_size);
         $this->Cell(146,5,utf8_decode('DATOS DE LA ORDEN'),'BT',0,'L');

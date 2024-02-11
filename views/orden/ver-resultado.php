@@ -11,7 +11,7 @@ OrdenPageAsset::register($this);
 
  <?php if(isset($orden)){
   
-     echo "<h4> <strong>Orden: </strong> <span class='btn btn-primary'> $orden->detalle </span></h4>";
+     echo "<h4> $orden->detalle </h4>";
     
      $items=[];
     $examenes =$orden->examens;   
@@ -34,7 +34,7 @@ OrdenPageAsset::register($this);
   <hr> 
   <div class="row text-center">
   <div class="col-md-12">
-       <button class="btn btn-success mt-2" onclick="imprimirOrden( <?=$orden->id ?>)"> <i class="mdi mdi-printer mr-2"></i>Imprimir Orden</button>
+       <button class="btn btn-primary mt-2" onclick="imprimirOrden( <?=$orden->id ?>)"> <i class="mdi mdi-printer mr-2"></i>Imprimir Orden</button>
   </div>
   </div>
    

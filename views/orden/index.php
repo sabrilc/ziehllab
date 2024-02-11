@@ -50,6 +50,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'paciente',
                 'value' => 'paciente.nombres'
             ],
+            ['attribute' => '_examenes',
+                /*'filter' => ArrayHelper::map(Analisis::find()->asArray()->all(), 'id', 'nombre'),
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'options' => ['prompt' => 'Buscar','multiple'=>false],
+                    'pluginOptions' => ['allowClear' => true],
+                ],*/
+                'label' => 'Análisis',
+                'format'=>'raw',
+                'value' => function ($model) {
+                    $html="";
+                    foreach ($model->examens as $examen) {
+                        $html.=  "<li>". $examen->analisis->nombre." </li>";
+                    }
+                    return  $html;
+                }
+            ],
             [
                 'attribute' => 'doctor',
                 'value' => 'doctor.nombres'
@@ -87,8 +104,6 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\ActionColumn','template' => '<div class="btn-group">{Imprimir}{EnProceso}{enviarMail}{Firmar}{Ver}{Editar}{Borrar}</div>',
                 'contentOptions'=>[ 'style'=>'width: 250px'],
                 'buttons' => [
-
-
                     'Imprimir'=> function ($url,$model) {
                                          return Html::a(
                                                  Html::tag('div',
@@ -125,11 +140,12 @@ $this->params['breadcrumbs'][] = $this->title;
                                      ['class'=>'btn btn-primary','title' => Yii::t('yii', 'Visualizar'),'aria-label' => Yii::t('yii', 'Visualizar')]);
                          },
                          'Borrar' => function ($url, $model) {
+
                          
                          return Html::a('<span> <b class="mdi mdi-18px mdi-trash-can-outline"></b></span> ',
                                          \yii\helpers\Url::to(['orden/delete','id' => $model->id]),
                                          ['class'=>'btn btn-danger','title' => Yii::t('yii', 'Borrar'),'aria-label' => Yii::t('yii', 'Borrar'),
-                                             'data-confirm' => Yii::t('yii', 'Esta seguro de eliminar la orden ?'),
+                                             'data-confirm' => Yii::t('yii', 'Esta seguro de eliminar la orden:  '.$model->detalle.'?'),
                                              'data-method'  => 'post',
                                          ]).
                                          '</div>';
