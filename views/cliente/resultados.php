@@ -32,10 +32,10 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     foreach ($model->examens as $examen) {
                                                                 $html.=  "<li>". $examen->analisis->nombre." </li>";
                                                             }
-                                                            
-                                                            $html .=' <a href="#" class="btn btn-sm btn-primary mt-2" data-toggle="modal" data-target=".bd-example-modal-lg" onclick="verOrden('.$model->id.')">
-                                     <i class="mdi mdi-printer"> </i> Imprimir
-                                     </a>';
+															$orden = base64_encode($model->id);                                                            
+                                                            $html .=' <a href="#" class="btn btn-sm btn-primary mt-2" data-toggle="modal" data-target=".bd-example-modal-lg" onclick="verOrden(\''.$orden.'\')">
+																		<i class="mdi mdi-printer"> </i> Imprimir
+																	 </a>';
                                                      return  $html;
                                         }
                                        ]

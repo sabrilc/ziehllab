@@ -56,12 +56,22 @@ class MedicoController extends Controller
     }
     
     public function actionImprimir($orden_id){
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-        $orden= Orden::find()->where(['id' => $orden_id,
-            'doctor_id'=>Yii::$app->user->identity->id,
-            'pagado'=>true,
-            'cerrada'=>true])->one();
-        return $orden->pdfBinario();
+ 		$orden= base64_decode($orden_id);
+		if($orden){		 
+        $orden= Orden::find()->where(['id' => $orden,
+                                     'doctor_id'=>Yii::$app->user->identity->id,
+									 'pagado'=>true,
+                                     'cerrada'=>true])->one();
+	    if( is_null($orden)){ return ""; }
+        if( !$orden->firmado_digitalmente){
+			 \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
+            return base64_encode($orden->pdf(false,true));
+        }else{
+           return  Tools::pdfToBase64(__DIR__."/../media/ordenes/".$orden->codigo.'.pdf',$orden->codigo.'.pdf');
+        }
+		}
+		 
+		return "";
         
     }
 /**
@@ -76,6 +86,8 @@ class MedicoController extends Controller
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
+		
+		
     }
 
 /**

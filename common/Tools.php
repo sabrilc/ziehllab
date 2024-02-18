@@ -37,6 +37,14 @@ class Tools
         
       
     }
+	
+	public static function pdfToBase64($path) {
+        if(filesize( $path)<=0){ $path =  __DIR__.'/../media/documents/pdf_no_encontrado.pdf';}        
+        $data = file_get_contents($path);
+        return base64_encode($data);
+        
+      
+    }
 
     public static function removeFile($path) {
 		 try {

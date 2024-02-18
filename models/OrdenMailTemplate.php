@@ -80,8 +80,8 @@ a, a:hover {
 
 			<!-- Image text color should be opposite to background color. Set your url, image src, alt and title. Alt text should fit the image size. Real image size should be x2. URL format: http://domain.com/?utm_source={{Campaign-Source}}&utm_medium=email&utm_content=logo&utm_campaign={{Campaign-Name}} -->
 			<a target="_blank" style="text-decoration: none;"
-				href="https://github.com/konsav/email-templates/"><img border="0" vspace="0" hspace="0"
-				src="'.$mail->embed( __DIR__."/../imagen/logito.png").'" 
+				href="https://ziehllab.com"><img border="0" vspace="0" hspace="0"
+				src="'.$mail->embed( __DIR__."/../media/imagen/app/logito.png").'" 
 				width="100" height="45"
 				alt="Logo" title="Logo" style="
 				color: #000000;
@@ -128,7 +128,7 @@ a, a:hover {
 		<td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;
 			padding-top: 20px;" class="hero"><a target="_blank" style="text-decoration: none;"
 			href="https://ziehllab.com"><img border="0" vspace="0" hspace="0"
-            src="'.$mail->embed( __DIR__."/../imagen/ziehl.png").'"
+            src="'.$mail->embed( __DIR__."/../media/imagen/app/ziehl.png").'"
 			width="560" style="
 			width: 100%;
 			max-width: 560px;
@@ -168,7 +168,7 @@ a, a:hover {
 					padding-top: 30px;
 					padding-right: 20px;"><img
 				border="0" vspace="0" hspace="0" style="padding: 0; margin: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: block;
-					color: #000000;"  src="'.$mail->embed( __DIR__."/../imagen/contact.png").'"										
+					color: #000000;"  src="'.$mail->embed( __DIR__."/../media/imagen/app/contact.png").'"										
 					width="50" height="50"></td>
 
 				<!-- LIST ITEM TEXT -->
@@ -193,7 +193,7 @@ a, a:hover {
 					padding-top: 30px;
 					padding-right: 20px;"><img
 				border="0" vspace="0" hspace="0" style="padding: 0; margin: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: block;
-					color: #000000;" src="'.$mail->embed( __DIR__."/../imagen/ubicacion.png").'"				
+					color: #000000;" src="'.$mail->embed( __DIR__."/../media/imagen/app/ubicacion.png").'"				
 					width="50" height="50"></td>
 
 				<!-- LIST ITEM TEXT -->

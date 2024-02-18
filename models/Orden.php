@@ -181,22 +181,38 @@ class Orden extends \yii\db\ActiveRecord
       return  $this->getExamens()->joinWith(['analisis'])->orderBy(['hoja_impresion'=>SORT_ASC,'orden_impresion'=>SORT_ASC]);
     }
     
-    public function pdf($for_signer=false) {
+    public function pdf($for_signer=false, $binary=false) {
 
          if( $for_signer){
              $pdf= new PDF_ORDEN_ACCESS($this, true);
              return ($pdf->Output('','S'));
          }else{
              $pdf= new PDF_ORDEN_ACCESS($this);
-             return $pdf->Output('','ORDEN_'.$this->codigo.'.pdf');
+			 if($binary){
+				  return ($pdf->Output('','S'));
+			 }
+			 else{
+				 return $pdf->Output('','ORDEN_'.$this->codigo.'.pdf'); 
+			 }
+            
          }
 
 
     }
     
     public function pdfForDownload() {
+		if( !$this->firmado_digitalmente){
+			 $pdf= new PDF_ORDEN_ACCESS($this);
+              return $pdf->Output('','S');
+        }else{$contenido =null;
+		 try{
+			$contenido = file_get_contents(__DIR__."/../media/ordenes/".$orden->codigo.'.pdf',$orden->codigo.'.pdf');
+		 }catch(\Exception $e){}
+           return $contenido;
+        }
         $pdf= new PDF_ORDEN($this->id);
-        return $pdf->Output('','S');
+       
+		
     }
     
     public function pdfBinario() {
