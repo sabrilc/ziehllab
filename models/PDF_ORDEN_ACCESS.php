@@ -124,7 +124,7 @@ class PDF_ORDEN_ACCESS extends FPDF
         $date = new \DateTime($this->orden->fecha_resultados );
         $time = new \DateTime('2021-01-01 '.$this->orden->hora_resultados );
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(95,5, utf8_decode(   $this->generateEnLetras( date_format($date, 'Y/m/d') ).' '.  date_format($time, 'H\Hi')   ),$this->debug, 0,'L',0);
+        $this->Cell(95,5, utf8_decode(  'Babahoyo, '. $this->generateEnLetras( date_format($date, 'Y/m/d') ).' '.  date_format($time, 'H\Hi')   ),$this->debug, 0,'L',0);
         $this->ln(30);
 
         $y= $this->GetY();
