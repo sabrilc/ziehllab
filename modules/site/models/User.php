@@ -56,7 +56,7 @@ class User extends ActiveRecord
             [['activo'], 'boolean'],
             [['username', 'email','password_reset_token'],'string', 'max' => 100],
             [['direccion'],'string', 'max' => 500],
-
+            [['fecha_nacimiento'], 'safe'],
             [['unidad_tiempo',],'string', 'max' => 5],
             [['auth_key', 'password', 'nombres' ],
                 'string', 'max' => 255],

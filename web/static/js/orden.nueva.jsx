@@ -35,15 +35,15 @@ const BuscadorCliente = ({
         if (bloqueado) return;
         setClienteSeleccionado(cliente);
         setClienteNuevo({
-            id: cliente.id,
-            email: cliente.email,
-            email_notificacion: cliente.email_notificacion,
-            identificacion: cliente.identificacion,
-            nombres: cliente.nombres,
-            sexo_id: cliente.sexo_id,
-            telefono: cliente.telefono,
-            direccion: cliente.direccion,
-            fecha_nacimiento: cliente.fecha_nacimiento,
+            id: cliente.id?? '',
+            email: cliente.email ?? '',
+            email_notificacion: cliente.email_notificacion ?? '',
+            identificacion: cliente.identificacion?? '',
+            nombres: cliente.nombres?? '',
+            sexo_id: cliente.sexo_id?? '',
+            telefono: cliente.telefono?? '',
+            direccion: cliente.direccion?? '',
+            fecha_nacimiento: cliente.fecha_nacimiento?? '',
         });
         setResultados([]);
         setQuery('');
@@ -71,6 +71,7 @@ const BuscadorCliente = ({
     const guardarCliente = () => {
         const formData = new FormData();
         Object.entries(clienteNuevo).forEach(([key, value]) => {
+            console.log({key, value})
             formData.append(key, value ?? '');
         });
 

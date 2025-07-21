@@ -293,8 +293,8 @@ public function actionClienteGuardar()
             'email_notificacion' => $data['email_notificacion'] ?? '',
             'telefono' => $data['telefono'] ?? '',
             'direccion' => $data['direccion'] ?? '',
-            'fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
-            'sexo_id' => $data['sexo_id'] ?? null,
+            'fecha_nacimiento' => $data['fecha_nacimiento'] ?? '',
+            'sexo_id' => $data['sexo_id'] ?? '',
         ]);
 
         if (!$cliente->save()) {
