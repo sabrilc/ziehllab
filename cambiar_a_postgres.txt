@@ -1,0 +1,8 @@
+New-NetFirewallRule -DisplayName "Abrir Puerto 3307 para WSL" -Direction Inbound -Protocol TCP -LocalPort 3307 -Action Allow
+
+
+ pgloader mysql://root:''@192.168.128.1:3307/ziehllab3  postgresql://postgres:acceso@192.168.128.1:5432/ziehllab3
+
+REPARAR ERRORES
+ ALTER TABLE public.auth_assignment
+ALTER COLUMN user_id TYPE bigint USING user_id::bigint;
