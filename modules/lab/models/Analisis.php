@@ -3,6 +3,7 @@
 namespace app\modules\lab\models;
 
 use Yii;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "analisis".
@@ -126,12 +127,17 @@ class Analisis extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+
     public function getParametrosParaIngresoResultado()
     {
-        return $this->hasMany(Parametro::class, [ 'analisis_id' => 'id' ])->orderBy('seccion_id ASC, orden_impresion ASC, id ASC');
-
-      /*->orderBy([ 'seccion_id' => SORT_ASC, 'orden_impresion' => SORT_ASC, 'id'=> SORT_ASC ]);*/
+        return $this->hasMany(Parametro::class, ['analisis_id' => 'id'])
+            ->orderBy([
+                new Expression('"seccion_id" ASC NULLS FIRST'),
+                new Expression('"orden_impresion" ASC'),
+                new Expression('"id" ASC'),
+            ]);
     }
+    /*->orderBy([ 'seccion_id' => SORT_ASC, 'orden_impresion' => SORT_ASC, 'id'=> SORT_ASC ]);*/
 
     /**
      * @return \yii\db\ActiveQuery
