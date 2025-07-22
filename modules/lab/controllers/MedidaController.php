@@ -3,13 +3,13 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Medida;
-use app\models\MedidaGrid;
+use app\modules\lab\models\Medida;
+use app\modules\lab\grids\MedidaGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\db\Expression;
-use app\models\Registro;
+use app\modules\lab\models\Registro;
 
 /**
  * MedidaController implements the CRUD actions for Medida model.

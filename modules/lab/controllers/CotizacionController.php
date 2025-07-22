@@ -2,16 +2,17 @@
 
 namespace app\modules\lab\controllers;
 
+use app\modules\lab\grids\CotizacionGrid;
+use app\modules\lab\models\Analisis;
+use app\modules\lab\models\Cotizacion;
+use app\modules\lab\models\CotizacionAnalisis;
+use app\modules\lab\models\Registro;
 use Yii;
-use app\models\Analisis;
-use app\models\Cotizacion;
-use app\models\CotizacionGrid;
-use app\models\Registro;
+
+use yii\db\Expression;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use app\models\CotizacionAnalisis;
-use yii\db\Expression;
 
 /**
  * CotizacionController implements the CRUD actions for Cotizacion model.

@@ -1,15 +1,16 @@
 <?php
 
-use app\models\Sexo;
-use app\models\User;
+
+use app\modules\lab\models\Sexo;
+use app\modules\site\models\User;
 use yii\bootstrap\Html;
-use yii\bootstrap4\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\View;
 use app\assets\FontAwesomeIconsAsset;
 use app\assets\HistorialPageAsset;
 use app\assets\TypeaheadJSAsset;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Orden */
@@ -21,7 +22,7 @@ HistorialPageAsset::register($this);
 ?>
 
 
-<?php $form = ActiveForm::begin(['id'=>'fmCliente','action'=>Url::to(['/historial/analisis'])]); $cliente = new User(); ?>
+<?php $form = ActiveForm::begin(['id'=>'fmCliente','action'=>Url::to(['/lab/historial/analisis'])]); $cliente = new User(); ?>
 <div class="row"> 
 
     	   <div class="col-sm-12 col-md-6  col-md-offset-3">

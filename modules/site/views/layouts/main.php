@@ -17,6 +17,7 @@ PaperThemeAsset::register($this);
 $setting = Settings::findOne(1);
 ?>
 
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" dir="ltr">
@@ -30,6 +31,7 @@ $setting = Settings::findOne(1);
    <?= Html::csrfMetaTags() ?>
 
    <title><?= Html::encode($this->title) ?></title>
+
    <?php $this->head() ?>
     <style>
         .pace {
@@ -86,6 +88,10 @@ $setting = Settings::findOne(1);
         }
 
     </style>
+    <link href="/static/themes/forms.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/themes/plugins/select2/select2.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/themes/plugins/plugins.css" rel="stylesheet" type="text/css"/>
+
 </head>
 
  <?php $this->beginBody() ?>
@@ -109,15 +115,15 @@ echo Nav::widget([
         ['label' => '<span class="nav-text">Ingreso de Resultados</span>','encode' => false, 'url' => ['/lab/orden/ingreso-resultado'],'visible'=> \Yii::$app->user->can('operador')],
 		['label' => '<span class="nav-text">Previsualización de Ordenes </span>','encode' => false, 'url' => ['/lab/orden/index-con-analisis'],'visible'=> \Yii::$app->user->can('operador')],
 
-        ['label' =>  '<span class="nav-text">Historial</span>','encode' => false, 'url' => ['/historial'],'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false ],
-        ['label' =>  '<span class="nav-text">Cotizaciones</span>','encode' => false, 'url' => ['/cotizacion/index'],'visible'=> \Yii::$app->user->can('operador')],
+        ['label' =>  '<span class="nav-text">Historial</span>','encode' => false, 'url' => ['/lab/historial'],'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false ],
+        ['label' =>  '<span class="nav-text">Cotizaciones</span>','encode' => false, 'url' => ['/lab/cotizacion/index'],'visible'=> \Yii::$app->user->can('operador')],
         [
             'label' => 'Usuarios',
             'items' => [
-                ['label' => '<i class="mdi mdi-account-supervisor-circle"></i><span class="nav-text">Cliente</span>','encode' => false, 'url' => ['/cliente/index'],'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false ],
-                ['label' => '<i class="mdi mdi-account-supervisor"></i><span class="nav-text">Medicos</span>','encode' => false, 'url' => ['/medico/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' => '<i class="mdi mdi-account-tie"></i><span class="nav-text">Operadores</span>','encode' => false, 'url' => ['/operador/index'],'visible'=> \Yii::$app->user->can('administrador')],
-                ['label' => '<i class="mdi mdi-shield-account"></i><span class="nav-text">Administradores</span>','encode' => false, 'url' => ['/admin/index'],'visible'=> \Yii::$app->user->can('administrador')],
+                ['label' => '<i class="mdi mdi-account-supervisor-circle"></i><span class="nav-text">Cliente</span>','encode' => false, 'url' => ['/lab/cliente/index'],'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false ],
+                ['label' => '<i class="mdi mdi-account-supervisor"></i><span class="nav-text">Medicos</span>','encode' => false, 'url' => ['/lab/medico/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' => '<i class="mdi mdi-account-tie"></i><span class="nav-text">Operadores</span>','encode' => false, 'url' => ['/lab/operador/index'],'visible'=> \Yii::$app->user->can('administrador')],
+                ['label' => '<i class="mdi mdi-shield-account"></i><span class="nav-text">Administradores</span>','encode' => false, 'url' => ['/lab/admin/index'],'visible'=> \Yii::$app->user->can('administrador')],
                ],
             'visible'=> \Yii::$app->user->can('operador') || \Yii::$app->user->can('administrador')?true:false
         ],
@@ -132,21 +138,21 @@ echo Nav::widget([
         ],
 
 
-        ['label' =>  '<span class="nav-text">Mis Análisis</span>','encode' => false, 'url' => ['/cliente/resultados'],'visible'=> \Yii::$app->user->can('cliente')],
-        ['label' =>  '<span class="nav-text">Resultados de pacientes </span>','encode' => false, 'url' => ['/medico/resultados'],'visible'=> \Yii::$app->user->can('medico')],
+        ['label' =>  '<span class="nav-text">Mis Análisis</span>','encode' => false, 'url' => ['/lab/cliente/resultados'],'visible'=> \Yii::$app->user->can('cliente')],
+        ['label' =>  '<span class="nav-text">Resultados de pacientes </span>','encode' => false, 'url' => ['/lab/medico/resultados'],'visible'=> \Yii::$app->user->can('medico')],
 
 
         [
             'label' => 'Configuraciones',
             'items' => [
-                ['label' =>  'Análisis','encode' => false, 'url' => ['/analisis/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Medidas','encode' => false, 'url' => ['/medida/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Métodos','encode' => false, 'url' => ['/metodo/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Tipos de análisis','encode' => false, 'url' => ['/tipo-analisis/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Antibioticos','encode' => false, 'url' => ['/antibiotico/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Tipos de muestras','encode' => false, 'url' => ['/tipo-muestra/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Gérmenes','encode' => false, 'url' => ['/germen/index'],'visible'=> \Yii::$app->user->can('operador')],
-                ['label' =>  'Laboratoristas','encode' => false, 'url' => ['/laboratorista/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Análisis','encode' => false, 'url' => ['/lab/analisis/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Medidas','encode' => false, 'url' => ['/lab/medida/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Métodos','encode' => false, 'url' => ['/lab/metodo/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Tipos de análisis','encode' => false, 'url' => ['/lab/tipo-analisis/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Antibioticos','encode' => false, 'url' => ['/lab/antibiotico/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Tipos de muestras','encode' => false, 'url' => ['/lab/tipo-muestra/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Gérmenes','encode' => false, 'url' => ['/lab/germen/index'],'visible'=> \Yii::$app->user->can('operador')],
+                ['label' =>  'Laboratoristas','encode' => false, 'url' => ['/lab/laboratorista/index'],'visible'=> \Yii::$app->user->can('operador')],
 
 
 
@@ -303,12 +309,31 @@ NavBar::end();
 <div id="overlay">
     <div class="loader"></div>
 </div>
+
 <?php $this->endBody() ?>
 </body>
 <?php $this->registerJs("
 setTimeout(function(){  $('#alert-flash').remove(); }, 3000);
 ")?>
 
+
 <?php $this->endPage() ?>
+<script src="/static/themes/plugins/select2/select2.min.js" type="text/javascript"></script>
+<script>
+    function inicializarSelect2(selector = 'select.select2me') {
+        $(selector).each(function () {
+            const $el = $(this);
+            if ($el.hasClass('select2-container form-control select2me')) {
+                $el.select2('destroy');
+            }
+            $el.select2({
+                placeholder: 'Seleccione...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    }
+    inicializarSelect2()
+</script>
 </html>
 

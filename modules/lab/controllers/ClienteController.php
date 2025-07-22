@@ -2,16 +2,18 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\AuthAssignment;
-use app\models\ClienteGrid;
-use app\models\Orden;
-use app\models\Registro;
-use app\models\User;
+use app\modules\lab\bussines\OrdenBussines;
+use app\modules\site\bussines\UserBussines;
+use app\modules\site\models\AuthAssignment;
+use app\modules\lab\grids\ClienteGrid;
+use app\modules\lab\models\Orden;
+use app\modules\lab\models\Registro;
+use app\modules\site\models\User;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use app\models\ClienteResultadoGrid;
-use common\Tools;
+use app\modules\lab\grids\ClienteResultadoGrid;
+use utils\Tools;
 
 
 /**
@@ -75,7 +77,7 @@ class ClienteController extends Controller
 		  $orden= base64_decode($orden_id);
 		if($orden){
 		 
-        $orden= Orden::find()->where(['id' => $orden,
+        $orden= OrdenBussines::find()->where(['id' => $orden,
                                      'paciente_id'=>Yii::$app->user->identity->id,
                                      'pagado'=>true,
                                      'cerrada'=>true])->one();
@@ -179,7 +181,7 @@ class ClienteController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = UserBussines::findOne($id)) !== null) {
             return $model;
         }
 

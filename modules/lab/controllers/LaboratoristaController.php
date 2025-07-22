@@ -3,8 +3,8 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Laboratorista;
-use app\models\LaboratoristaGrid;
+use app\modules\lab\models\Laboratorista;
+use app\modules\lab\grids\LaboratoristaGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

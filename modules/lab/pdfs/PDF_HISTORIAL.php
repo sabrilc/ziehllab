@@ -1,10 +1,9 @@
 <?php
 namespace app\modules\lab\pdfs;
 
-use Da\QrCode\QrCode;
+use app\modules\site\bussines\UserBussines;
 use inquid\pdf\FPDF;
-
-
+use utils\Texto;
 
 
 class PDF_HISTORIAL extends FPDF
@@ -24,7 +23,7 @@ class PDF_HISTORIAL extends FPDF
     public $line_begin;    
     
     
-    public function __construct( User $cliente,$analisis){
+    public function __construct( UserBussines $cliente,$analisis){
 
         $this->paciente = $cliente;
      
@@ -57,7 +56,7 @@ class PDF_HISTORIAL extends FPDF
         
         $this->SetX($this->line_begin);        
         $this->SetFont($this->font,'BU',$this->font_title_size);        
-        $this->Cell(195,5, utf8_decode($this->analisis->nombre. ' ('.$this->examen->orden->fecha.')'),0,0,'L');
+        $this->Cell(195,5, Texto::encodeLatin1($this->analisis->nombre. ' ('.$this->examen->orden->fecha.')'),0,0,'L');
         
         $this->ln();
         $this->getImpresionParametros();
@@ -69,13 +68,13 @@ class PDF_HISTORIAL extends FPDF
     
     
     public function textoNota($nota){
-        if(isset($nota) && trim($nota)!=''){
+        if(isset($nota) && Texto::trim($nota)!=''){
                 $this->SetX(30);
                 $this->SetFont($this->font,'B',$this->font_body_size);
                
-                $this->Cell(15,5,utf8_decode( 'NOTA:' ),0,0,'L');
+                $this->Cell(15,5,Texto::encodeLatin1( 'NOTA:' ),0,0,'L');
                 $this->SetFont($this->font,'',$this->font_body_size);
-                $this->MultiCell(148,5, utf8_decode( $nota ),1,'J',0);
+                $this->MultiCell(148,5, Texto::encodeLatin1( $nota ),1,'J',0);
                 $this->ln();
         }
         
@@ -85,18 +84,18 @@ class PDF_HISTORIAL extends FPDF
         foreach ($this->examen->examenGermenes as $examenGermen) {            
             $this->SetX($this->line_begin+5);
             if(isset($examenGermen->germen_id)){
-                $this->Cell(50,5,utf8_decode('IDENTIFICACION DEL GERMEN'),0,0,'L');
+                $this->Cell(50,5,Texto::encodeLatin1('IDENTIFICACION DEL GERMEN'),0,0,'L');
                 $this->SetFont($this->font,'B',$this->font_body_size);
-                $this->Cell(65,5,utf8_decode( isset($examenGermen->germen_id) ? $examenGermen->germen->descripcion :'' ),0,0,'R');
+                $this->Cell(65,5,Texto::encodeLatin1( isset($examenGermen->germen_id) ? $examenGermen->germen->descripcion :'' ),0,0,'R');
             }
             $this->SetFont($this->font,'',$this->font_body_size);
             $this->ln();
             
-            if( strlen( trim($examenGermen->contaje_colonia ) ) >0 ){
+            if( strlen( Texto::trim($examenGermen->contaje_colonia ) ) >0 ){
             $this->SetX($this->line_begin+5);
-            $this->Cell(50,5,utf8_decode('CONTAJE BACTERIANO'),0,0,'L');
+            $this->Cell(50,5,Texto::encodeLatin1('CONTAJE BACTERIANO'),0,0,'L');
             $this->SetFont($this->font,'B',$this->font_body_size);
-            $this->Cell(65,5,utf8_decode($examenGermen->contaje_colonia.' [UFC/ML]'),0,0,'R');
+            $this->Cell(65,5,Texto::encodeLatin1($examenGermen->contaje_colonia.' [UFC/ML]'),0,0,'R');
             $this->SetFont($this->font,'',$this->font_body_size);
             $this->ln();
             $this->ln();
@@ -107,9 +106,9 @@ class PDF_HISTORIAL extends FPDF
             if(isset($examenGermen->germen_id)){
                     $this->SetX($this->line_begin+50);
                     $this->SetFont($this->font,'B',$this->font_body_size);
-                    $this->Cell(36,5,utf8_decode('AGENTE MICROBIANO'),'TB',0,'R');
-                    $this->Cell(36,5,utf8_decode('INHIBICION EN [MM]'),'TB',0,'R');
-                    $this->Cell(55,5,utf8_decode('DIAMETRO DE ZONA'),'TB',0,'R');
+                    $this->Cell(36,5,Texto::encodeLatin1('AGENTE MICROBIANO'),'TB',0,'R');
+                    $this->Cell(36,5,Texto::encodeLatin1('INHIBICION EN [MM]'),'TB',0,'R');
+                    $this->Cell(55,5,Texto::encodeLatin1('DIAMETRO DE ZONA'),'TB',0,'R');
                     $this->ln(); 
             }
           
@@ -128,9 +127,9 @@ class PDF_HISTORIAL extends FPDF
                         
                         $this->SetX($this->line_begin+50);
                         $this->SetFont($this->font,'',$this->font_body_size);  
-                        $this->Cell(36,5,utf8_decode($agentes->descripcion),'TB',0,'R');
-                        $this->Cell(36,5,utf8_decode($agentes->valor.' [mm]'),'TB',0,'R');
-                        $this->Cell(55,5,utf8_decode($agentes->tipo),'TB',0,'R');
+                        $this->Cell(36,5,Texto::encodeLatin1($agentes->descripcion),'TB',0,'R');
+                        $this->Cell(36,5,Texto::encodeLatin1($agentes->valor.' [mm]'),'TB',0,'R');
+                        $this->Cell(55,5,Texto::encodeLatin1($agentes->tipo),'TB',0,'R');
                         $this->ln();  
                                             
                 ;
@@ -157,56 +156,56 @@ class PDF_HISTORIAL extends FPDF
     }
    
     public function Header(){
-        $this->Image(__DIR__.'/../imagen/a4.png',0,0,210,297,'png');
+        $this->Image(__DIR__.'/../../../media/imagen/app/a4.png',0,0,210,297,'png');
         $this->SetXY($this->line_begin,46);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(146,5,utf8_decode('HISTORIAL DE ANÁLISIS'),'BT',0,'L');
+        $this->Cell(146,5,Texto::encodeLatin1('HISTORIAL DE ANÁLISIS'),'BT',0,'L');
         $this->ln();
         
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(30,5,utf8_decode('PACIENTE:'),0,0,'L');
+        $this->Cell(30,5,Texto::encodeLatin1('PACIENTE:'),0,0,'L');
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(150,5,utf8_decode($this->paciente->nombres),0,0,'L');
+        $this->Cell(150,5,Texto::encodeLatin1($this->paciente->nombres),0,0,'L');
         $this->ln();
         
         if($this->paciente->unidad_tiempo=='RN'){
             $this->SetX($this->line_begin);
             $this->SetFont($this->font,'',$this->font_body_size);
-            $this->Cell(32,5,utf8_decode('EDAD DEL PACIENTE:'),0,0,'L');
+            $this->Cell(32,5,Texto::encodeLatin1('EDAD DEL PACIENTE:'),0,0,'L');
             $this->SetFont($this->font,'B',$this->font_body_size);
-            $this->Cell(10,5,utf8_decode('RN'),0,0,'L');           
+            $this->Cell(10,5,Texto::encodeLatin1('RN'),0,0,'L');           
             $this->ln();
         }
         else{
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(32,5,utf8_decode('EDAD DEL PACIENTE:'),0,0,'L');
+        $this->Cell(32,5,Texto::encodeLatin1('EDAD DEL PACIENTE:'),0,0,'L');
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(10,5,utf8_decode($this->paciente->edad),0,0,'L');
+        $this->Cell(10,5,Texto::encodeLatin1($this->paciente->edad),0,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(15,5,utf8_decode('EDAD EN :'),0,0,'L');
+        $this->Cell(15,5,Texto::encodeLatin1('EDAD EN :'),0,0,'L');
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(10,5,utf8_decode($this->paciente->unidad_tiempo),0,0,'L');
+        $this->Cell(10,5,Texto::encodeLatin1($this->paciente->unidad_tiempo),0,0,'L');
         $this->ln();
         }
         
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(30,5,utf8_decode('DOCTOR:'),0,0,'L');
+        $this->Cell(30,5,Texto::encodeLatin1('DOCTOR:'),0,0,'L');
         $this->SetFont($this->font,'B',$this->font_body_size);
        
-        if(isset($this->doctor)){ $this->Cell(150,5,utf8_decode($this->doctor->nombres),0,0,'L'); }
-        else{ $this->Cell(150,5,utf8_decode(''),0,0,'L');}
+        if(isset($this->doctor)){ $this->Cell(150,5,Texto::encodeLatin1($this->doctor->nombres),0,0,'L'); }
+        else{ $this->Cell(150,5,Texto::encodeLatin1(''),0,0,'L');}
        
         $this->ln();
         
         $this->SetX($this->line_begin);  
         $this->SetFont($this->font,'',$this->font_body_size);
-        $this->Cell(40,5,utf8_decode('FECHA DE IMPRESION:'),0,0,'L');
+        $this->Cell(40,5,Texto::encodeLatin1('FECHA DE IMPRESION:'),0,0,'L');
         $this->SetFont($this->font,'B',$this->font_body_size);
         $date = new \DateTime();
-        $this->Cell(150,5,utf8_decode('BABAHOYO, '. date_format($date, 'd/m/Y')),0,0,'L');
+        $this->Cell(150,5,Texto::encodeLatin1('BABAHOYO, '. date_format($date, 'd/m/Y')),0,0,'L');
         $this->ln();        
         $this->tableHead();
         $this->QrCode();
@@ -226,10 +225,10 @@ class PDF_HISTORIAL extends FPDF
     public function tableHead(){             
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(65,5,utf8_decode('EXAMEN REALIZADO'),'TB',0,'L');
-        $this->Cell(38,5,utf8_decode('RESULTADO'),'TB',0,'L');
-        $this->Cell(45,5,utf8_decode('UNIDADES'),'TB',0,'L');
-        $this->Cell(30,5,utf8_decode('VALORES DE REFERENCIA'),'TB',0,'R');
+        $this->Cell(65,5,Texto::encodeLatin1('EXAMEN REALIZADO'),'TB',0,'L');
+        $this->Cell(38,5,Texto::encodeLatin1('RESULTADO'),'TB',0,'L');
+        $this->Cell(45,5,Texto::encodeLatin1('UNIDADES'),'TB',0,'L');
+        $this->Cell(30,5,Texto::encodeLatin1('VALORES DE REFERENCIA'),'TB',0,'R');
         $this->ln();
     }
     
@@ -245,7 +244,7 @@ class PDF_HISTORIAL extends FPDF
                 $this->SetX($this->line_begin+5);
                 if(isset($parametro->seccion_id) && $seccion != $parametro->seccion_id ){
                     $this->SetFont($this->font,'B',$this->font_body_size);
-                    $this->Cell(195,5, utf8_decode($parametro->seccion->descripcion),0,0,'L');
+                    $this->Cell(195,5, Texto::encodeLatin1($parametro->seccion->descripcion),0,0,'L');
                     $this->ln();
                     
                 }  
@@ -255,39 +254,39 @@ class PDF_HISTORIAL extends FPDF
                                 
                 if(isset($parametroExamen)){  
                     
-                     if( !empty( $parametroExamen->valor ) or trim($parametroExamen->valor) != '' ){ 
+                     if( !empty( $parametroExamen->valor ) or Texto::trim($parametroExamen->valor) != '' ){ 
                          $this->checkY();
                          if(isset($parametro->metodo_id)){
                              $this->SetX($this->line_begin+5);
                              $y=$this->y;
                              $this->SetFont($this->font,'B',$this->font_body_size);
-                             $this->MultiCell(85,5, utf8_decode('METODO'),0,'L',0);
+                             $this->MultiCell(85,5, Texto::encodeLatin1('METODO'),0,'L',0);
                              $this->SetXY(100,$y);
-                             $this->MultiCell(95,5, utf8_decode($parametro->metodo->descripcion),0,'L',0);
+                             $this->MultiCell(95,5, Texto::encodeLatin1($parametro->metodo->descripcion),0,'L',0);
                              $this->SetFont($this->font,'',$this->font_body_size);
                          }
                          $this->checkY();
                         $referencia = $parametroExamen->referencia;
                         $this->SetX($this->line_begin+5);
                         $y=$this->y;         
-                        $this->MultiCell(55,5, utf8_decode( $parametroExamen->descripcion ),0 ,'L', 0 );            
+                        $this->MultiCell(55,5, Texto::encodeLatin1( $parametroExamen->descripcion ),0 ,'L', 0 );            
                         $anchoCeldaValor=30;
                         $anchoCeldaMedida=35;
-                        if( strlen( trim( $parametroExamen->medida ) ) == 0 && strlen( trim( $parametroExamen->valor ) ) > 10){ 
+                        if( strlen( Texto::trim( $parametroExamen->medida ) ) == 0 && strlen( Texto::trim( $parametroExamen->valor ) ) > 10){ 
                             $anchoCeldaValor=65;
                             $anchoCeldaMedida=0;
                             $this->SetXY(70,$y);
-                            $this->MultiCell($anchoCeldaValor,5, utf8_decode( trim($parametroExamen->valor )),0 ,'L', 0 );
+                            $this->MultiCell($anchoCeldaValor,5, Texto::encodeLatin1( Texto::trim($parametroExamen->valor )),0 ,'L', 0 );
                         }else{
                             $this->SetXY(70,$y);
-                            $this->MultiCell(30,5, utf8_decode( trim($parametroExamen->valor )),0 ,'R', 0 );
+                            $this->MultiCell(30,5, Texto::encodeLatin1( Texto::trim($parametroExamen->valor )),0 ,'R', 0 );
                             $this->SetXY(100,$y);
-                            $this->MultiCell($anchoCeldaMedida,5, utf8_decode( $parametroExamen->medida ),0 ,'R', 0 );
+                            $this->MultiCell($anchoCeldaMedida,5, Texto::encodeLatin1( $parametroExamen->medida ),0 ,'R', 0 );
                         }
                         
                        
                         $this->SetXY(135,$y);
-                        $this->MultiCell(60,5, utf8_decode( $referencia ),0 ,'R', 0 );
+                        $this->MultiCell(60,5, Texto::encodeLatin1( $referencia ),0 ,'R', 0 );
                         
                         if( $this->GetStringWidth($parametro->descripcion) > 55 || $this->GetStringWidth($parametroExamen->valor) > $anchoCeldaValor || $this->GetStringWidth($parametroExamen->medida) > $anchoCeldaMedida ||  $this->GetStringWidth( $referencia ) > 60 ){
                            $this->ln();                

@@ -1,11 +1,10 @@
 <?php
 
-use luya\bootstrap4\grid\GridView;
+use yii\grid\GridView;
 use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $GridModel app\models\UserGrid */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Administradores';

@@ -1,9 +1,11 @@
 <?php
-namespace app\models;
+namespace app\modules\lab\pdfs;
 
+use app\modules\lab\bussines\OrdenBussines;
+use utils\Texto;
 use yii\db\Query;
-use components\PHPlot;
-use components\PDF_MemImage;
+use utils\components\PHPlot;
+use utils\components\PDF_MemImage;
 
 
 class PDF_INFORME extends PDF_MemImage
@@ -39,16 +41,16 @@ class PDF_INFORME extends PDF_MemImage
     public function head(){
         $this->SetFont($this->font,'B',$this->font_title_size);
         $this->SetX($this->line_begin);
-        $this->Cell(180,5,utf8_decode('FECHAS DE CORTE DEL INFORME'),1,0,'C');       
+        $this->Cell(180,5,Texto::encodeLatin1('FECHAS DE CORTE DEL INFORME'),1,0,'C');       
         $this->ln();
         
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('FECHA INICIAL'),1 ,0, 'L');
+        $this->Cell(60,5,Texto::encodeLatin1('FECHA INICIAL'),1 ,0, 'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5, $this->fecha_inicio, 1, 0,'R');
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('FECHA FIN'),1 ,0, 'L');
+        $this->Cell(60,5,Texto::encodeLatin1('FECHA FIN'),1 ,0, 'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$this->fecha_fin, 1, 0,'R');
         $this->ln();
@@ -57,7 +59,7 @@ class PDF_INFORME extends PDF_MemImage
     
     public function body(){
       $this->Ln();
-      $orden= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_ASC])->one();
+      $orden= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_ASC])->one();
       if( isset($orden))
       {
     	  $this->ordenInicial();
@@ -77,7 +79,7 @@ class PDF_INFORME extends PDF_MemImage
           
           $this->SetFont($this->font,'B',$this->font_title_size);
           $this->SetX($this->line_begin);      
-          $this->Cell(180,5,utf8_decode('HISTORICO ANUAL'),0 ,0 ,'C' );
+          $this->Cell(180,5,Texto::encodeLatin1('HISTORICO ANUAL'),0 ,0 ,'C' );
          
           $this->setY(220);
           $this->graficoAnual(); 
@@ -86,17 +88,17 @@ class PDF_INFORME extends PDF_MemImage
       }
       else{
           $this->SetX($this->line_begin);
-          $this->Cell(180,5,utf8_decode('NO SE HA REGISTRADO NINGUNA ORDEN EN ESTE CORTE'),0 ,0 ,'L' );
+          $this->Cell(180,5,Texto::encodeLatin1('NO SE HA REGISTRADO NINGUNA ORDEN EN ESTE CORTE'),0 ,0 ,'L' );
       }
   
         
     }
 	
    private function ordenInicial(){        
-        $orden= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_ASC])->one();        
+        $orden= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_ASC])->one();
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ORDEN INICIAL'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ORDEN INICIAL'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$orden->codigo,1,0,'R');  
         $this->ln();       
@@ -105,29 +107,29 @@ class PDF_INFORME extends PDF_MemImage
 	
 	
     private function ordenesEnProceso(){        
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->andWhere(['<>','cerrada',true])->count();        
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->andWhere(['<>','cerrada',true])->count();
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ORDENES EN PROCESO'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ORDENES EN PROCESO'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');  
         $this->ln();
     }
     
     private function ordenesFinalizadas(){
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->andWhere(['cerrada'=>true])->count();
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->andWhere(['cerrada'=>true])->count();
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ORDENES FINALIZADAS'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ORDENES FINALIZADAS'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');
         $this->ln();
     }
     private function ordenesTotales(){
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->count();
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->count();
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ORDENES TOTALES'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ORDENES TOTALES'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');
         $this->ln();
@@ -146,19 +148,19 @@ class PDF_INFORME extends PDF_MemImage
                                          //;
          $this->SetX($this->line_begin);
          $this->SetFont($this->font,'B',$this->font_body_size);
-         $this->Cell(90,5,utf8_decode('ANALISIS MAS REALIZADOS'),1,0,'C');
+         $this->Cell(90,5,Texto::encodeLatin1('ANALISIS MAS REALIZADOS'),1,0,'C');
          $this->ln();
          
          $this->SetX($this->line_begin);
          $this->SetFont($this->font,'B',$this->font_body_size);
-         $this->Cell(60,5,utf8_decode('ANALISIS'),1,0,'L');
+         $this->Cell(60,5,Texto::encodeLatin1('ANALISIS'),1,0,'L');
          $this->Cell(30,5, 'CANTIDAD' ,1,0,'R');
          $this->ln();
                                          
        foreach ($examenes as $examen) {
            $this->SetX($this->line_begin);
            $this->SetFont($this->font,'',$this->font_body_size);
-           $this->Cell(60,5,utf8_decode( substr( $examen['nombre'],0 , 32) ),1,0,'L');
+           $this->Cell(60,5,Texto::encodeLatin1( substr( $examen['nombre'],0 , 32) ),1,0,'L');
            $this->Cell(30,5, $examen['cantidad'] ,1,0,'R');
            $this->ln();
         }
@@ -166,40 +168,40 @@ class PDF_INFORME extends PDF_MemImage
     }
 	
 	private function ordenFinal(){        
-        $orden= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_DESC])->one();        
+        $orden= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->orderBy(['id'=>SORT_DESC])->one();
         $this->SetXY(105,25);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ORDEN FINAL'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ORDEN FINAL'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$orden->codigo,1,0,'R');  
         $this->ln();
     }
 	
     private function valorTotalSinDescuento(){
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('precio');
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('precio');
         $this->SetX(105);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('SUBTOTAL'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('SUBTOTAL'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');
         $this->ln();
     }
     
     private function valorDescuento(){
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('descuento');
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('descuento');
         $this->SetX(105);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('DESCUENTOS REALIZADOS'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('DESCUENTOS REALIZADOS'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');
         $this->ln();
     }
     
     private function valorTotal(){
-        $ordenesEnProceso= Orden::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('valor_total');
+        $ordenesEnProceso= OrdenBussines::find()->where(['between', 'fecha', $this->fecha_inicio, $this->fecha_fin])->sum('valor_total');
         $this->SetX(105);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('VALOR TOTAL'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('VALOR TOTAL'),1,0,'L');
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(30,5,$ordenesEnProceso,1,0,'R');
         $this->ln();
@@ -218,19 +220,19 @@ class PDF_INFORME extends PDF_MemImage
         //;
         $this->SetX(105);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(90,5,utf8_decode('ANALISIS QUE GENERAN MAS INGRESOS'),1,0,'C');
+        $this->Cell(90,5,Texto::encodeLatin1('ANALISIS QUE GENERAN MAS INGRESOS'),1,0,'C');
         $this->ln();
         
         $this->SetX(105);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('ANALISIS'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('ANALISIS'),1,0,'L');
         $this->Cell(30,5, 'VENTA ($)' ,1,0,'R');
         $this->ln();
         
         foreach ($examenes as $examen) {
             $this->SetX(105);
             $this->SetFont($this->font,'',$this->font_body_size);
-            $this->Cell(60,5,utf8_decode( substr( $examen['nombre'],0 , 32) ),1,0,'L');
+            $this->Cell(60,5,Texto::encodeLatin1( substr( $examen['nombre'],0 , 32) ),1,0,'L');
             $this->Cell(30,5, $examen['valor'] ,1,0,'R');
             $this->ln();
         }
@@ -250,12 +252,12 @@ class PDF_INFORME extends PDF_MemImage
                                          //;
          $this->SetX($this->line_begin);
          $this->SetFont($this->font,'B',$this->font_body_size);
-         $this->Cell(180,5,utf8_decode('ANALISIS REALIZADOS'),1,0,'C');
+         $this->Cell(180,5,Texto::encodeLatin1('ANALISIS REALIZADOS'),1,0,'C');
          $this->ln();
          
          $this->SetX($this->line_begin);
          $this->SetFont($this->font,'B',$this->font_body_size);
-         $this->Cell(120,5,utf8_decode('ANALISIS'),1,0,'L');
+         $this->Cell(120,5,Texto::encodeLatin1('ANALISIS'),1,0,'L');
          $this->Cell(30,5, 'CANTIDAD' ,1,0,'R');
 		  $this->Cell(30,5, 'VENTA ($)' ,1,0,'R');
          $this->ln();
@@ -263,7 +265,7 @@ class PDF_INFORME extends PDF_MemImage
        foreach ($examenes as $examen) {
            $this->SetX($this->line_begin);
            $this->SetFont($this->font,'',$this->font_body_size);
-           $this->Cell(120,5,utf8_decode( substr( $examen['nombre'],0 , 60) ),1,0,'L');
+           $this->Cell(120,5,Texto::encodeLatin1( substr( $examen['nombre'],0 , 60) ),1,0,'L');
            $this->Cell(30,5, $examen['cantidad'] ,1,0,'R');
 		    $this->Cell(30,5, $examen['valor'] ,1,0,'R');
            $this->ln();
@@ -274,13 +276,18 @@ class PDF_INFORME extends PDF_MemImage
 	
 	
     
-    private  function graficoAnual(){        
-        $query=  new Query();
-        $query->select(['YEAR(Fecha) anio', 'MONTH(Fecha)  mes', 'SUM(precio) subtotal','IFNULL( SUM(descuento)  , 0 ) as descuento', 
-            'SUM(valor_total) valor_total'])
-        ->groupBy('anio,mes')
-        ->from(['orden'])
-        ->where(['YEAR(Fecha)'=> Date('Y',strtotime($this->fecha_inicio))]);
+    private  function graficoAnual(){
+        $query = new Query();
+        $query->select([
+            "EXTRACT(YEAR FROM Fecha) AS anio",
+            "EXTRACT(MONTH FROM Fecha) AS mes",
+            "SUM(precio) AS subtotal",
+            "COALESCE(SUM(descuento), 0) AS descuento",
+            "SUM(valor_total) AS valor_total"
+        ])
+            ->from('orden')
+            ->where(['EXTRACT(YEAR FROM Fecha)' => date('Y', strtotime($this->fecha_inicio))])
+            ->groupBy(['anio', 'mes']);
         $ventas=[];
         foreach ( $query->all() as $model) {
             $ventas[] = array( self::mes($model['mes']), $model['subtotal'], $model['valor_total'], $model['descuento'], );
@@ -314,7 +321,7 @@ class PDF_INFORME extends PDF_MemImage
         
         $this->SetXY($this->line_begin,215);
         $this->SetFont($this->font,'B',$this->font_body_size);
-        $this->Cell(60,5,utf8_decode('MESES'),1,0,'L');
+        $this->Cell(60,5,Texto::encodeLatin1('MESES'),1,0,'L');
         $this->Cell(40,5,'SUBTOTAL',1,0, 'R');
         $this->Cell(40,5,'DESCUENTO', 1,0,'R');
         $this->Cell(40,5,'VALOR TOTAL', 1,0,'R');        
@@ -323,7 +330,7 @@ class PDF_INFORME extends PDF_MemImage
         $this->SetFont($this->font,'',$this->font_body_size);
         foreach ( $ventas as $venta) {
             $this->SetX($this->line_begin);           
-            $this->Cell(60,5,utf8_decode( $venta[0]),1,0,'L');
+            $this->Cell(60,5,Texto::encodeLatin1( $venta[0]),1,0,'L');
             $this->Cell(40,5,$venta[1],1,0,'R');            
             $this->Cell(40,5,$venta[3],1,0,'R');
             $this->Cell(40,5,$venta[2],1,0,'R');

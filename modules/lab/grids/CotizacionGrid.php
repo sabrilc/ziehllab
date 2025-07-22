@@ -2,9 +2,10 @@
 
 namespace app\modules\lab\grids;
 
+use app\modules\lab\models\Cotizacion;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Cotizacion;
+
 
 /**
  * CotizacionGrid represents the model behind the Grid form of `app\models\Cotizacion`.

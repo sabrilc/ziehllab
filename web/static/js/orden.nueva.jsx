@@ -130,7 +130,7 @@ const BuscadorCliente = ({
                 )}
 
                 {clienteSeleccionado && !mostrarFormulario && (
-                    <div className="alert alert-success" style={{ marginTop: '10px' }}>
+                    <div className="alert alert-warning" style={{ marginTop: '10px' }}>
                         <strong>Cliente seleccionado:</strong> {clienteSeleccionado.nombres} ({clienteSeleccionado.identificacion})
                         {!bloqueado && (
                             <div className="text-right" style={{ marginTop: '10px' }}>
@@ -359,7 +359,7 @@ const ItemRow = ({ index, item,editable, actualizarItem, eliminarItem }) => {
                     min="0"
                     step="0.01"
                     value={item.precio}
-                    disabled={true}
+                    disabled={!editable}
                     onChange={(e) => actualizarItem(index, 'precio', e.target.value)}
                 />
             </td>
@@ -417,6 +417,106 @@ const ListaItems = ({ items, editable, actualizarItem, eliminarItem }) => {
     );
 };
 
+const PdfModal = ({ ordenId }) => {
+    const [show, setShow] = React.useState(false);
+    const [pdfUrl, setPdfUrl] = React.useState('');
+    const modalRef = React.useRef(null);
+    const iframeRef = React.useRef(null);
+
+
+    const openModal = () => {
+        const url = `/lab/orden/online-ticket?id=${ordenId}`;
+        setPdfUrl(url);
+        setShow(true);
+    };
+
+    const closeModal = () => {
+        setShow(false);
+        setPdfUrl('');
+    };
+
+    // Limpiar iframe cuando se cierra con Bootstrap manualmente
+    React.useEffect(() => {
+        const $modal = window.$(modalRef.current);
+        $modal.on('hidden.bs.modal', () => {
+            setPdfUrl('');
+        });
+
+        return () => {
+            $modal.off('hidden.bs.modal');
+        };
+    }, []);
+
+    React.useEffect(() => {
+        if (show) {
+            window.$(modalRef.current).modal('show');
+        } else {
+            window.$(modalRef.current).modal('hide');
+        }
+    }, [show]);
+
+    // Lanzar impresión cuando el PDF termine de cargar en el iframe
+    const onIframeLoad = () => {
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow) {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.error("Error al lanzar impresión desde el iframe:", e);
+            }
+        }
+    };
+
+    return (
+        <>
+            <button className="btn btn-primary" onClick={openModal}>
+               <i className={"fa fa-print"} ></i>Imprimir
+            </button>
+
+            <div
+                ref={modalRef}
+                className="modal fade"
+                tabIndex="-1"
+                role="dialog"
+                aria-hidden="true"
+                id="modal-pdf"
+            >
+                <div className="modal-dialog" style={{ width: '90%', maxWidth: 900 }}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button
+                                type="button"
+                                className="close"
+                                onClick={closeModal}
+                                aria-label="Cerrar"
+                            >
+                                &times;
+                            </button>
+                            <h4 className="modal-title">Vista previa del ticket</h4>
+                        </div>
+                        <div className="modal-body" style={{ height: '80vh', padding: 0 }}>
+                            {pdfUrl && (
+                                <iframe
+                                    src={pdfUrl}
+                                    ref={iframeRef}
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                    onLoad={onIframeLoad}
+                                    title="Vista previa PDF"
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+
+
 // Componente principal OrdenApp
 const OrdenApp = () => {
     const [clientes, setClientes] = React.useState([]);
@@ -428,6 +528,8 @@ const OrdenApp = () => {
     const [guardado, setGuardado] = React.useState(false);
     const [ordenId, setOrdenId] = React.useState(0)
     const [total, setTotal] = React.useState(0);
+    const [codigo, setCodigo] = React.useState('');
+    const [editando, setEditando] = React.useState(false);
 
 
     React.useEffect(() => {
@@ -435,6 +537,14 @@ const OrdenApp = () => {
         const desc = descuento > 0 ? (subtotal * descuento) / 100 : 0;
         setTotal(subtotal - desc);
     }, [items, descuento]);
+
+    React.useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get("id"));
+        if (id > 0) {
+            cargarOrden(id); // función que ya definiste
+        }
+    }, []);
 
     const seleccionarCliente = (e) => {
         const id = e.target.value;
@@ -485,7 +595,9 @@ const OrdenApp = () => {
         formData.append('cliente', JSON.stringify(cliente));
         formData.append('items', JSON.stringify(items));
         formData.append('descuento', descuento);
+        formData.append('codigo_lab', codigo);
         formData.append('total', total);
+        formData.append('orden_id', ordenId);
 
         axios
             .post('/lab/orden/guardar', formData, {
@@ -510,54 +622,6 @@ const OrdenApp = () => {
             });
     };
 
-    const print = () => {
-        const formData = new FormData();
-        formData.append('ticket', ordenId);
-
-        axios
-            .post('/lab/orden/print-ticket', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-            .then((res) => {
-                const data = res.data;
-
-                if (data.success === true && data.pdf) {
-                    // Convertir base64 a Blob
-                    const byteCharacters = atob(data.pdf);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
-
-                    // Crear URL para imprimir
-                    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-                    // Abrir en nueva ventana y lanzar impresión
-                    const printWindow = window.open(pdfUrl);
-                    if (printWindow) {
-                        printWindow.onload = () => {
-                            printWindow.focus();
-                            printWindow.print();
-                        };
-                    } else {
-                        swal("Error", "No se pudo abrir la ventana de impresión.", "error");
-                    }
-
-                } else {
-                    swal("Transacción fallida", data.error || "Error desconocido", "error");
-                }
-
-            })
-            .catch((err) => {
-                swal("Transacción fallida", err?.message || "Error inesperado", "error");
-            });
-    };
-
-
     const nuevaOrden = () => {
         setClienteSeleccionado(null);
         setClienteNuevo({ nombre: '', cedula: '', nacimiento: '' });
@@ -567,9 +631,42 @@ const OrdenApp = () => {
         setTotal(0);
     };
 
+    const cargarOrden = (id) => {
+        axios.get(`/lab/orden/info?id=${id}`)
+            .then(res => {
+                const data = res.data;
+                if (data.success) {
+                    setOrdenId(data.orden.id);
+                    setCodigo(data.orden.codigo_lab || '');
+                    setClienteSeleccionado(data.orden.cliente || null);
+                    setClienteNuevo(data.orden.cliente || {});
+
+                    setItems(data.orden.items || []);
+                    setDescuento(data.orden.descuento || 0);
+                    setEditando(true)
+                    setGuardado(false); // bloquea campos como si estuviera guardada
+                } else {
+                    swal("Error", "No se pudo cargar la orden", "error");
+                }
+            })
+            .catch(() => {
+                swal("Error", "Fallo al obtener la orden", "error");
+            });
+    };
+
+
     return (
         <div className="container">
-            <h3>📝 Crear Orden</h3>
+            <div className="form-group" style={{marginTop: 10, maxWidth: 200}}>
+                <label>Codigo :</label>
+                <input
+                    type="text"
+                    value={codigo}
+                    disabled={guardado}
+                    className="form-control"
+                    onChange={(e) => setCodigo(e.target.value.trim())}
+                />
+            </div>
 
             <BuscadorCliente
                 clienteSeleccionado={clienteSeleccionado}
@@ -580,7 +677,7 @@ const OrdenApp = () => {
             />
 
 
-            {!guardado && <BuscadorProducto onProductoSeleccionado={agregarProducto} />}
+            {!guardado && <BuscadorProducto onProductoSeleccionado={agregarProducto}/>}
 
             <ListaItems
                 items={items}
@@ -589,34 +686,40 @@ const OrdenApp = () => {
                 eliminarItem={eliminarItem}
             />
 
-            <div className="form-group" style={{ marginTop: 10, maxWidth: 200 }}>
+
+            <div className="form-group" style={{marginTop: 10, maxWidth: 200}}>
                 <label>Descuento (%)</label>
                 <input
                     type="number"
                     className="form-control"
                     value={descuento}
+                    disabled={guardado}
                     min="0"
                     max="100"
                     onChange={(e) => setDescuento(parseFloat(e.target.value) || 0)}
                 />
             </div>
 
-            <div className="alert alert-info">
-                <strong>Total: </strong> ${total.toFixed(2)}
+            <div className="panel panel-primary">
+                <div className={"panel-body"}>
+                    <strong>Total: </strong> ${total.toFixed(2)}
+                </div>
+
+
             </div>
 
-            {!guardado ? (
+            {!guardado ? (<>
                 <button className="btn btn-success" onClick={guardarOrden}>
                     <i className={"fa fa-save"}></i> Guardar Orden
                 </button>
+                { editando&&<PdfModal ordenId={ordenId}></PdfModal>}
+                </>
             ) : (
                 <div className="btn-group">
-                    <button className="btn btn-default" onClick={nuevaOrden}>
+                    { !editando&&<button className="btn btn-default" onClick={nuevaOrden}>
                         <i className={"fa fa-plus"}></i> Nueva Orden
-                    </button>
-                    <button className="btn btn-info" onClick={() => print()}>
-                        <i className={"fa fa-print"}></i> Imprimir
-                    </button>
+                    </button>}
+                    <PdfModal ordenId={ordenId}></PdfModal>
                 </div>
             )}
         </div>
@@ -624,6 +727,6 @@ const OrdenApp = () => {
 };
 
 // Renderizamos en DOM
-    const root = ReactDOM.createRoot(document.getElementById('react-root'));
-    root.render(<OrdenApp />);
+const root = ReactDOM.createRoot(document.getElementById('react-root'));
+root.render(<OrdenApp/>);
 

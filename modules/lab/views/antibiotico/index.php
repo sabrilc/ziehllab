@@ -1,10 +1,11 @@
 <?php
 
+use app\modules\lab\grids\AntibioticoGrid;
 use yii\helpers\Html;
-use luya\bootstrap4\grid\GridView;
+use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $GridModel app\models\AntibioticoGrid */
+/* @var $GridModel AntibioticoGrid */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Antibióticos';

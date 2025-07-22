@@ -3,12 +3,12 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Metodo;
-use app\models\MetodoGrid;
+use app\modules\lab\models\Metodo;
+use app\modules\lab\grids\MetodoGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\Registro;
+use app\modules\lab\models\Registro;
 
 /**
  * MetodoController implements the CRUD actions for Metodo model.

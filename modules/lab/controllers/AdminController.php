@@ -2,10 +2,10 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\AdminGrid;
-use app\models\AuthAssignment;
-use app\models\Registro;
-use app\models\User;
+use app\modules\lab\grids\AdminGrid;
+use app\modules\site\bussines\UserBussines;
+use app\modules\site\models\AuthAssignment;
+use app\modules\lab\models\Registro;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -150,12 +150,12 @@ class AdminController extends Controller
      * Finds the User model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return User the loaded model
+
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = UserBussines::findOne($id)) !== null) {
             return $model;
         }
 

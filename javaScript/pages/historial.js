@@ -64,7 +64,7 @@ function getAnalisis(){
 	         });
 }
 function verHistorial(cliente,analisis){
-	window.open('/historial/imprimir?cliente='+cliente+'&analisis='+analisis,'impresion','width=800px,height=800px');
+	window.open('/lab/historial/imprimir?cliente='+cliente+'&analisis='+analisis,'impresion','width=800px,height=800px');
 }
 
 

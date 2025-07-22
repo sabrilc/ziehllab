@@ -1,12 +1,14 @@
 <?php
 
-use app\models\TipoAnalisis;
+
+use app\modules\lab\models\Cotizacion;
+use app\modules\lab\models\TipoAnalisis;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Cotizacion */
+/* @var $model Cotizacion */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

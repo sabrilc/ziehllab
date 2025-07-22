@@ -1,12 +1,15 @@
 <?php
 
-use app\models\Sexo;
+
+use app\modules\lab\models\Sexo;
+use app\modules\site\bussines\UserBussines;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\jui\DatePicker;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\User */
+/* @var $model UserBussines */
 /* @var $form yii\widgets\ActiveForm */
 ?>
  <?php $form = ActiveForm::begin(); ?>
@@ -23,9 +26,24 @@ use yii\widgets\ActiveForm;
          ['prompt' => 'Seleccionar ...'])
      ;?>
 </div>
-<div class="col-md-6">
- <?= $form->field($model, 'edad')->textInput(['maxlength' => true]) ?>  
-</div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label> Fecha de Nacimiento*</label>
+            <?= DatePicker::widget([
+                'model' => $model,
+                'attribute' => 'fecha_nacimiento',
+                'options' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Seleccione...',
+                    'autocomplete' => 'off',
+                    'readonly' => false,
+                ],
+                'dateFormat' => 'dd-MM-yyyy',
+            ]) ?>
+        </div>
+
+
+    </div>
 <div class="col-md-12">
 <div class="card primary">
 <div class="card-header" >

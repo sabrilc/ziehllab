@@ -65,15 +65,16 @@ class PDF_ORDEN_TICKET extends FPDF
 
         // --- Datos del Paciente (Similar al informe) ---
         $this->SetFont('Arial', 'B', 11);
-        $this->Cell(0, 7,  strtoupper( Texto::encodeLatin1($this->paciente->nombres) ?? 'PACIENTE DESCONOCIDO'), 0, 1, 'L');
+        $this->Cell(0, 7,  strtoupper( Texto::encodeLatin1("{$this->orden->codigo_lab}  {$this->paciente->nombres}") ?? 'PACIENTE DESCONOCIDO'), 0, 1, 'L');
 
         $this->SetFont('Arial', '', 10);
-        $cedula = $this->paciente->cedula ?? '---';
+        $cedula = $this->paciente->identificacion ?? '---';
         $edad = $this->paciente->getEdad() ?? '---'; // Asumiendo getEdad() en modelo Paciente
         $sexo = $this->paciente->sexo->descripcion ?? '---';
 
         // Formateado para parecerse al informe: Cédula: ..., Edad: ..., Sexo: ...
-        $this->Cell(0, 6, Texto::encodeLatin1('Cédula: ' . $cedula . '  Edad: ' . $edad . ' años  Sexo: ' . $sexo), 0, 1, 'L');
+        $this->Cell(0, 6, Texto::encodeLatin1('Cédula: ' . $cedula . '  Edad: ' . $edad), 0, 1, 'L');
+        $this->Cell(0, 6, Texto::encodeLatin1('Sexo: ' . $sexo), 0, 1, 'L');
         $this->Ln(5);
 
         // --- Fechas y Médico (Similar al informe) ---
@@ -110,7 +111,7 @@ class PDF_ORDEN_TICKET extends FPDF
             $subtotal += $precio;
 
             $this->Cell(20, 6, '1', 1, 0, 'C'); // Cantidad
-            $this->Cell(90, 6, substr($examen->analisis->nombre, 0, 35), 1, 0, 'L'); // Nombre del análisis
+            $this->Cell(90, 6, substr(Texto::encodeLatin1($examen->analisis->nombre), 0, 35), 1, 0, 'L'); // Nombre del análisis
             $this->Cell(30, 6, number_format($precio, 2), 1, 0, 'R'); // Precio Unitario
             $this->Cell(30, 6, number_format($precio, 2), 1, 1, 'R'); // Total por línea y nueva línea
         }

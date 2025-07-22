@@ -2,7 +2,6 @@
 
 namespace app\modules\site\bussines;
 use app\modules\lab\models\Orden;
-use app\modules\lab\models\Sexo;
 use app\modules\site\models\User;
 use Yii;
 use yii\web\IdentityInterface;
@@ -75,6 +74,11 @@ class UserBussines extends User implements IdentityInterface
     public function getNombreCompleto()
     {
          return $this->nombres;
+    }
+
+    public function getNombresConCedula()
+    {
+        return "($this->identificacion) $this->nombres";
     }
 
 

@@ -1,14 +1,15 @@
 <?php
 
+use app\modules\lab\models\Parametro;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use app\models\Metodo;
-use app\models\Medida;
-use app\models\Seccion;
+use app\modules\lab\models\Metodo;
+use app\modules\lab\models\Medida;
+use app\modules\lab\models\Seccion;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Parametro */
+/* @var $model Parametro */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

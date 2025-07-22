@@ -47,6 +47,20 @@ function guardarInfoOrden(){
 	return false;
 }
 
+function guardarResponsablesOrden(){
+	$.ajax({
+		method: "POST",
+		url: "/lab/orden/guardar-responsables",
+		data: $('#formResponsablesOrden').serialize(),
+		beforeSend: function( xhr ) { setLoadind(); }
+	}).done(function( data ) {
+		cargarExamenes();
+	});
+
+
+	return false;
+}
+
 function guardarResultado(){
 	 
 	 $.ajax({

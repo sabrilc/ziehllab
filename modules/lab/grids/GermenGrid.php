@@ -2,6 +2,7 @@
 
 namespace app\modules\lab\grids;
 
+use app\modules\lab\models\Germen;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 

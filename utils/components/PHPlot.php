@@ -1,5 +1,5 @@
 <?php
- namespace components;
+ namespace utils\components;
 
 /**
  * PHPlot - A class for creating scientific and business graphs, charts, plots
@@ -6855,7 +6855,7 @@ class PHPlot
 
                 default:
                     // Draw color boxes:
-                    ImageFilledRectangle($this->img, $dot_left_x, $y1, $dot_right_x, $y2,
+                    ImageFilledRectangle($this->img, (int) round($dot_left_x),  (int) round($y1),  (int) round($dot_right_x), (int) round( $y2),
                                          $this->ndx_data_colors[$color_index]);
                    // Draw a rectangle around the box, if enabled.
                    if ($this->legend_colorbox_borders != 'none') {
@@ -6863,7 +6863,7 @@ class PHPlot
                            $color = $this->ndx_data_border_colors[$color_index];
                        else
                            $color = $this->ndx_text_color;
-                       ImageRectangle($this->img, $dot_left_x, $y1, $dot_right_x, $y2, $color);
+                       ImageRectangle($this->img, (int) round($dot_left_x),  (int) round($y1),  (int) round($dot_right_x), (int) round( $y2), $color);
                    }
                 }
                 if (++$color_index > $max_color_index) $color_index = 0;
@@ -7167,7 +7167,9 @@ class PHPlot
         }
 
         // Draw the bar
-        ImageFilledRectangle($this->img, $x1, $y1, $x2, $y2, $data_color);
+        ImageFilledRectangle($this->img, (int)$x1, (int)$y1, (int)$x2, (int)$y2, $data_color);
+
+
 
         // Draw a shade, if shading is on.
         if (isset($shade_color)) {
@@ -7180,7 +7182,9 @@ class PHPlot
             } else { // Suppress top shading (Note shade_top==FALSE && shade_side==FALSE is not allowed)
                 $pts = array($x2, $y2, $x2, $y1, $x2 + $shade, $y1 - $shade, $x2 + $shade, $y2 - $shade);
             }
-            ImageFilledPolygon($this->img, $pts, count($pts) / 2, $shade_color);
+
+           // ImageFilledPolygon($this->img, $pts, count($pts) / 2, $shade_color);
+            ImageFilledPolygon($this->img, $pts,  $shade_color);
         }
 
         // Draw a border around the bar, if enabled.

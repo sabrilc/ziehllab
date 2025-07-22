@@ -44,9 +44,9 @@ class ClienteGrid extends UserBussines
      */
     public function Grid($params)
     {
-        $query = User::find();
+        $query = UserBussines::find()->alias('u');
         
-        $query->innerJoin('auth_assignment','user.id=auth_assignment.user_id');
+        $query->innerJoin('auth_assignment','u.id=auth_assignment.user_id');
         
         $query->where(['item_name'=>'cliente']);
 
@@ -74,12 +74,11 @@ class ClienteGrid extends UserBussines
             'updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'username', $this->username])
-            ->andFilterWhere(['like', 'email', $this->email])
-            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
-            ->andFilterWhere(['like', 'password', $this->password])
-            ->andFilterWhere(['like', 'nombres', $this->nombres])           
-            ->andFilterWhere(['like', 'identificacion', $this->identificacion]);
+        $query->andFilterWhere(['ilike', 'username', $this->username])
+            ->andFilterWhere(['ilike', 'email', $this->email])
+            ->andFilterWhere(['ilike', 'auth_key', $this->auth_key])
+            ->andFilterWhere(['ilike', 'nombres', $this->nombres])
+            ->andFilterWhere(['ilike', 'identificacion', $this->identificacion]);
 
         return $dataProvider;
     }

@@ -2,10 +2,11 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\AuthAssignment;
-use app\models\OperadorGrid;
-use app\models\Registro;
-use app\models\User;
+use app\modules\site\bussines\UserBussines;
+use app\modules\site\models\AuthAssignment;
+use app\modules\lab\grids\OperadorGrid;
+use app\modules\lab\models\Registro;
+use app\modules\site\models\User;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -134,7 +135,7 @@ class OperadorController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = UserBussines::findOne($id)) !== null) {
             return $model;
         }
 

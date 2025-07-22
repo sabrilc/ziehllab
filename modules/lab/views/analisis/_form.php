@@ -1,13 +1,14 @@
 <?php
 
+use app\modules\lab\models\Analisis;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use app\models\TipoMuestra;
-use app\models\TipoAnalisis;
+use app\modules\lab\models\TipoMuestra;
+use app\modules\lab\models\TipoAnalisis;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Analisis */
+/* @var $model Analisis */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

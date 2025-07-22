@@ -3,13 +3,13 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Analisis;
-use app\models\Parametro;
-use app\models\ParametroGrid;
+use app\modules\lab\models\Analisis;
+use app\modules\lab\models\Parametro;
+use app\modules\lab\grids\ParametroGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\Registro;
+use app\modules\lab\models\Registro;
 
 /**
  * ParametroController implements the CRUD actions for Parametro model.

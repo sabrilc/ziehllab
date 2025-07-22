@@ -2,15 +2,16 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\AuthAssignment;
-use app\models\MedicoGrid;
-use app\models\Orden;
-use app\models\Registro;
-use app\models\User;
+use app\modules\site\bussines\UserBussines;
+use app\modules\site\models\AuthAssignment;
+use app\modules\lab\grids\MedicoGrid;
+use app\modules\lab\models\Orden;
+use app\modules\lab\models\Registro;
+use app\modules\site\models\User;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use app\models\MedicoResultadoGrid;
+use app\modules\lab\grids\MedicoResultadoGrid;
 
 
 /**
@@ -108,7 +109,7 @@ class MedicoController extends Controller
    */
     public function actionCreate()
     {
-        $model = new User();
+        $model = new UserBussines();
        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $addrol= new AuthAssignment();
             $addrol->item_name='medico';
@@ -174,7 +175,7 @@ class MedicoController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = UserBussines::findOne($id)) !== null) {
             return $model;
         }
 

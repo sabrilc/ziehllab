@@ -3,13 +3,11 @@
 use app\modules\lab\models\ExamenGermen;
 use app\modules\lab\models\Germen;
 use app\modules\lab\bussines\OrdenBussines;
-use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\assets\IngresoResultadoPageAsset;
-use app\assets\JQueryClockTimePicker;
 use app\assets\JQueryClockTimePickerAsset;
 use app\assets\OrdenPageAsset;
 use app\assets\JSLoadingOverlayAsset;
@@ -32,17 +30,16 @@ JQueryClockTimePickerAsset::register($this);
       <div class='panel-body'>    
      
           <?php 
-          echo Select2::widget([
-              'name' => 'orden',
-              'data' =>  ArrayHelper::map(OrdenBussines::findAll(['cerrada'=>false,]), 'id', 'detalle'),
-              'options' => [
-                  'placeholder' => 'Seleccionar ...',
+              echo  Html::dropDownList('orden','',
+              ArrayHelper::map(OrdenBussines::findAll(['cerrada'=>false,]), 'id', 'detalle'),
+              [
+                  'prompt' => 'Seleccionar ...',
                   'multiple' => false,
                   'onChange'=>'cargarExamenes()',
+                  'class'=>'form-control select2me',
                   'id'=>'cbox_orden'
-              ],
-          ]);
-          
+              ]
+          )
     
           ?>
       </div>          
@@ -112,5 +109,7 @@ JQueryClockTimePickerAsset::register($this);
     <?php ActiveForm::end(); ?>
 
 <?php Modal::end();?>
+
+
 
 

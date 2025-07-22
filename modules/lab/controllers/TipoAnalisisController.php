@@ -3,12 +3,11 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\TipoAnalisis;
-use app\models\TipoAnalisisGrid;
+use app\modules\lab\models\TipoAnalisis;
+use app\modules\lab\grids\TipoAnalisisGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use app\models\Registro;
+use app\modules\lab\models\Registro;
 
 /**
  * TipoAnalisisController implements the CRUD actions for TipoAnalisis model.

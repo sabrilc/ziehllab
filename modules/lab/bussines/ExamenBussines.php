@@ -29,6 +29,14 @@ class ExamenBussines extends Examen
 {
       public $_orden_cerrada;
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrden()
+    {
+        return $this->hasOne(OrdenBussines::class, ['id' => 'orden_id']);
+    }
+
     public function getNombreCosto()
     {
        

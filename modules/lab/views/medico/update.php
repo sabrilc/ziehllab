@@ -2,7 +2,9 @@
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\User */
+/* @var $model UserBussines */
+
+use app\modules\site\bussines\UserBussines;
 
 $this->title = 'Editar el Médico: ' . $model->nombres;
 $this->params['breadcrumbs'][] = ['label' => 'Médicos', 'url' => ['index']];

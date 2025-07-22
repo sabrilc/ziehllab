@@ -103,9 +103,13 @@ class OrdenGrid extends OrdenBussines
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'orden.codigo', $this->codigo]);
-        $query->andFilterWhere(['like', 'user.nombres', $this->paciente]);
-        $query->andFilterWhere(['like', 'doctor.nombres', $this->doctor]);
+        $query->andFilterWhere(['ilike', 'orden.codigo', $this->codigo]);
+        $query->andFilterWhere(['ilike', 'doctor.nombres', $this->doctor]);
+        $query->andFilterWhere([
+                'or',
+                ['ilike', 'user.identificacion', $this->paciente],
+                ['ilike', 'user.nombres', $this->paciente]
+            ]);
 
         return $dataProvider;
     }

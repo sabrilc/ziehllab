@@ -4,7 +4,7 @@ namespace app\modules\lab\grids;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Analisis;
+use app\modules\lab\models\Analisis;
 
 /**
  * AnalisisGrid represents the model behind the Grid form of `app\models\Analisis`.

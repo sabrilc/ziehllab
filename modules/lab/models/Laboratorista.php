@@ -2,7 +2,7 @@
 
 namespace app\modules\lab\models;
 
-use common\Tools;
+use utils\Tools;
 use Yii;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
@@ -127,7 +127,7 @@ class Laboratorista extends \yii\db\ActiveRecord
     {
         if( strlen($this->firma_digital_fullname)>3){
         return Html::tag("div",
-            Laboratorista . phpHtml::tag("div",
+            Html::tag("div",
                 Html::tag("img", [], ["src" => Tools::imageToBase64(__DIR__ . '/../media/imagen/defaults/Fingerprint.png'),
                     "width" => "150px"])
                 , ["class" => "col col-md-2"]) . Html::tag("div",

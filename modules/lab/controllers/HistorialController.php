@@ -2,10 +2,11 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\Examen;
-use app\models\HistoriaGrid;
-use app\models\PDF_HISTORIAL;
-use app\models\User;
+use app\modules\lab\models\Examen;
+use app\modules\lab\grids\HistoriaGrid;
+use app\modules\lab\pdfs\PDF_HISTORIAL;
+use app\modules\site\bussines\UserBussines;
+use app\modules\site\models\User;
 use Yii;
 use yii\db\Expression;
 use yii\web\Controller;
@@ -52,10 +53,10 @@ class HistorialController extends Controller
         $this->layout = FALSE;
         $keyword = strval($_POST['query']);
         
-        $clientes =User::find()
-        ->select(['user.id', 'username','email' ,'identificacion', 'nombres', 'edad', 'sexo_id', 'telefono','direccion','unidad_tiempo',
+        $clientes =UserBussines::find()->alias("u")
+        ->select(['u.id', 'username','email' ,'identificacion', 'nombres', 'edad', 'sexo_id', 'telefono','direccion','unidad_tiempo',
             'activo','concat( identificacion,\' \',nombres,\' \' ,email) as _descripcion'])
-            ->innerJoin('auth_assignment','user.id=auth_assignment.user_id')
+            ->innerJoin('auth_assignment','u.id=auth_assignment.user_id')
             ->where(['item_name'=>'cliente'])
             ->andWhere(['like', new Expression('concat( identificacion,\' \',nombres,\' \' ,email)'),"$keyword"])->all();
             
@@ -100,7 +101,7 @@ class HistorialController extends Controller
     
     public function actionImprimir($cliente,$analisis){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;       
-        $cliente = User::findOne(['id'=>$cliente]);
+        $cliente = UserBussines::findOne(['id'=>$cliente]);
         if( is_null( $cliente)){ return 'El cliente no existe !!';}
         $analisis = Examen::find()
         ->joinWith(['orden'])

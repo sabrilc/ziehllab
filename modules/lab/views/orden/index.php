@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'paciente',
-                'value' => 'paciente.nombres'
+                'value' => 'paciente.nombresConCedula'
             ],
             ['attribute' => '_examenes',
                 /*'filter' => ArrayHelper::map(Analisis::find()->asArray()->all(), 'id', 'nombre'),

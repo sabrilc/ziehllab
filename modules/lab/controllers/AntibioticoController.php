@@ -3,8 +3,8 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Antibiotico;
-use app\models\AntibioticoGrid;
+use app\modules\lab\models\Antibiotico;
+use app\modules\lab\grids\AntibioticoGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

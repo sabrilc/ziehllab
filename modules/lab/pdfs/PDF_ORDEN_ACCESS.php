@@ -2,6 +2,8 @@
 namespace app\modules\lab\pdfs;
 
 use app\modules\site\models\Empresa;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Logo\Logo;
 use utils\Endroid\QrCode;
 use inquid\pdf\FPDF;
 use utils\Texto;
@@ -147,9 +149,13 @@ class PDF_ORDEN_ACCESS extends FPDF
                 if( strlen($laboratorista->firma_digital_fullname) > 0) {
                     $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                         chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
-                    $qrCode = (new QrCode($url));
-                    $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                    $this->Image($qrCode->writeDataUri(), $this->line_begin, $y - 20, 20, 20, 'png');
+                    $qrCode = QrCode::create($url);
+                    $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+                    $writer = new PngWriter();
+                    $result = $writer->write($qrCode);
+                    $dataUri = $result->getDataUri();
+                    $this->Image($dataUri, $this->line_begin, $y - 20, 20, 20, 'png');
                     $this->SetXY($this->line_begin + 20, $y - 16);
                     $this->SetFont($this->font_sign, '', $this->font_body_size);
                     $this->Cell(90, 1, Texto::encodeLatin1("Firmado electrónicamente por:"), $this->debug, 0, 'J');
@@ -183,9 +189,13 @@ class PDF_ORDEN_ACCESS extends FPDF
                 if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
                     $url = Texto::encodeLatin1("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
                         chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
-                    $qrCode = (new QrCode($url));
-                    $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                    $this->Image($qrCode->writeDataUri(), 120, $y - 20, 20, 20, 'png');
+                    $qrCode = QrCode::create($url);
+                    $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+                    $writer = new PngWriter();
+                    $result = $writer->write($qrCode);
+                    $dataUri = $result->getDataUri();
+                    $this->Image($dataUri, 120, $y - 20, 20, 20, 'png');
                     $this->SetXY(140, $y - 16);
                     $this->SetFont($this->font_sign, '', $this->font_body_size);
                     $this->Cell(90, 1, Texto::encodeLatin1("Firmado electrónicamente por:"), $this->debug, 0, 'J');
@@ -213,11 +223,16 @@ class PDF_ORDEN_ACCESS extends FPDF
             $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
             $qrCode = (new QrCode($url));
         } else{
-            $qrCode = (new QrCode($this->orden->codigo));
+            $url=$this->orden->codigo;
         }
 
-        $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-        $this->Image($qrCode->writeDataUri(),$this->line_begin,$y+20,20,20,'png');
+        $qrCode = QrCode::create($url);
+        $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+        $dataUri = $result->getDataUri();
+        $this->Image($dataUri,$this->line_begin,$y+20,20,20,'png');
         $y = $y+40;
         $this->SetXY($this->line_begin + 20,$y-16);
         $this->Cell(90,1,Texto::encodeLatin1("ziehllab.com"), $this->debug ,0,'J');
@@ -238,8 +253,8 @@ class PDF_ORDEN_ACCESS extends FPDF
     
     private function encabezadoAccessLab(){
 	   $this->checkY();
-	   $this->Image(__DIR__ . '/../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
-       $this->Image(__DIR__ . '/../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
+	   $this->Image(__DIR__ . '/../../../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
+       $this->Image(__DIR__ . '/../../../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
         $this->SetXY( $this->line_begin + 75, 10);
       //  $this->SetFont($this->font,'B',$this->font_body_size);
       //  $this->Cell(90,5,Texto::encodeLatin1($this->empresa->razon_social),$this->debug,0,'L');
@@ -318,8 +333,8 @@ class PDF_ORDEN_ACCESS extends FPDF
 
     private function encabezadoForPanel(){
         $this->checkY();
-        $this->Image(__DIR__ . '/../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
-        $this->Image(__DIR__ . '/../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
+        $this->Image(__DIR__ . '/../../../media/imagen/app/AccessLab_a4.png',0,0,210,297,'png');
+        $this->Image(__DIR__ . '/../../../media/imagen/app/ziehllab_logo.png',$this->line_begin+5, 9, 70, 28, 'png');
         $this->SetXY( $this->line_begin + 75, 10);
         $this->SetFont($this->font,'',$this->font_body_size);
         $y = $this->GetY();
@@ -330,9 +345,13 @@ class PDF_ORDEN_ACCESS extends FPDF
 
         $this->ln();
         $url = $this->empresa->access_url;
-        $qrCode = (new QrCode($url));
-        $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-        $this->Image($qrCode->writeDataUri(),$this->line_begin+160,$y,25,25,'png');
+        $qrCode = QrCode::create($url);
+        $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+        $dataUri = $result->getDataUri();
+        $this->Image($dataUri,$this->line_begin+160,$y,25,25,'png');
 
         $this->SetXY($this->line_begin,40);
         $this->SetFont($this->font,'B',$this->font_body_size);
@@ -524,9 +543,14 @@ class PDF_ORDEN_ACCESS extends FPDF
                                  if( strlen($laboratorista->firma_digital_fullname) > 0) {
                                      $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                                          chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
-                                     $qrCode = (new QrCode($url));
-                                     $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                                     $this->Image($qrCode->writeDataUri(), $this->line_begin + 5, $y - 20, 20, 20, 'png');
+                                     $qrCode = QrCode::create($url);
+                                     $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+                                     $writer = new PngWriter();
+                                     $result = $writer->write($qrCode);
+                                     $dataUri = $result->getDataUri();
+
+                                     $this->Image($dataUri, $this->line_begin + 5, $y - 20, 20, 20, 'png');
                                      $this->SetXY($this->line_begin + 25, $y - 16);
                                      $this->SetFont($this->font_sign, '', $this->font_body_size);
                                      $this->Cell(90, 1, Texto::encodeLatin1("Firmado electrónicamente por:"), $this->debug, 0, 'J');
@@ -561,9 +585,16 @@ class PDF_ORDEN_ACCESS extends FPDF
                                    if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
                                        $url = Texto::encodeLatin1("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
                                            chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
-                                       $qrCode = (new QrCode($url));
-                                       $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                                       $this->Image($qrCode->writeDataUri(), 120, $y - 20, 20, 20, 'png');
+                                       $qrCode = QrCode::create($url);
+                                       $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+                                       $writer = new PngWriter();
+                                       $result = $writer->write($qrCode);
+                                       $dataUri = $result->getDataUri();
+                                       $this->Image($dataUri, 120, $y - 20, 20, 20, 'png');
+
+                                       // 6. Convertir el resultado a base64 (data URI)
+
                                        $this->SetXY(140, $y - 16);
                                        $this->SetFont($this->font_sign, '', $this->font_body_size);
                                        $this->Cell(90, 1, Texto::encodeLatin1("Firmado electrónicamente por:"), $this->debug, 0, 'J');
@@ -589,15 +620,30 @@ class PDF_ORDEN_ACCESS extends FPDF
 
                         $y = 210;
                             $this->setY($y );
-                        if( strlen($this->orden->token)>50 ){
-                            $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
-                            $qrCode = (new QrCode($url));
-                        } else{ 
-                            $qrCode = (new QrCode($this->orden->codigo));
-                        }
 
-                        $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                        $this->Image($qrCode->writeDataUri(),$this->line_begin,$y+20,20,20,'png');
+
+                        $data = (strlen($this->orden->token) > 50)
+                            ? 'https://' . $_SERVER['HTTP_HOST'] . '/documentos/analisis?token=' . $this->orden->token
+                            : $this->orden->codigo;
+
+                        $qrCode = QrCode::create($data);
+                        $qrCode->setSize(250)
+                            ->setMargin(5)
+                            ->setForegroundColor(new Color(55, 55, 55))
+                            ->setBackgroundColor(new Color(255, 255, 255));
+
+                        $logo = Logo::create(__DIR__ . '/../../../media/imagen/app/ziehllab_logo.png') // Asegúrate que esta ruta esté correcta
+                        ->setResizeToWidth(150)
+                            ->setResizeToHeight(60);
+
+                        // 5. Generar el QR con logo y texto usando PngWriter
+                        $writer = new PngWriter();
+                        $result = $writer->write($qrCode, $logo);
+
+                        // 6. Convertir el resultado a base64 (data URI)
+                        $dataUri = $result->getDataUri();
+
+                        $this->Image($dataUri,$this->line_begin,$y+20,20,20,'png');
                         $y = $y+40;
                         $this->SetXY($this->line_begin + 20,$y-16);
                         $this->Cell(90,1,Texto::encodeLatin1("ziehllab.com"), $this->debug ,0,'J');
@@ -768,15 +814,6 @@ class PDF_ORDEN_ACCESS extends FPDF
         $qrCode = QrCode::create($data)
             ->setSize(250)
             ->setMargin(5);
-
-        // 2. Opcional: Si quieres un color específico para el QR (usando RGB)
-        //    Endroid\QrCode\Color\Color requiere una instancia de Color
-        //    Si solo quieres un gris oscuro, puedes omitir esto y usar el predeterminado.
-        //    Pero si lo quieres específico, se hace así:
-        //    use Endroid\QrCode\Color\Color;
-        //    ->setForegroundColor(new Color(55, 55, 55)); // R, G, B
-
-        // 3. Crear un escritor para PNG
         $writer = new PngWriter();
 
         // 4. Escribir el QR y obtener el Data URI
@@ -787,24 +824,6 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->Image($dataUri, 164, 45, 29, 29, 'png');
     }
 
-
-    /* php 7.4
-      public function QrCode(){
-
-
-          if( strlen($this->orden->token)>50 ){
-              $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
-              $qrCode = (new QrCode($url));
-          }
-          else{  $qrCode = (new QrCode($this->orden->codigo)); }
-
-          $qrCode->setSize(250)
-            ->setMargin(5)
-            ->useForegroundColor(55, 55, 55);
-            $this->Image($qrCode->writeDataUri(),164,45,29,29,'png');
-
-        }
-       */
     public function Header(){
         if( !$this->impresionAccessLab() or ! $this->impresionPanel()){
 		$this->SetDrawColor( 0, 0, 0 );
@@ -832,15 +851,7 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->Cell(150,5,Texto::encodeLatin1($this->paciente->nombres),0,0,'L');
         $this->ln();
         
-       /*if($this->paciente->unidad_tiempo=='RN'){
-            $this->SetX($this->line_begin);
-            $this->SetFont($this->font,'',$this->font_body_size);
-            $this->Cell(32,5,Texto::encodeLatin1('EDAD DEL PACIENTE:'),0,0,'L');
-            $this->SetFont($this->font,'B',$this->font_body_size);
-            $this->Cell(10,5,Texto::encodeLatin1('RN'),0,0,'L');           
-            $this->ln();
-        }*/
-       // else{
+
         $this->SetX($this->line_begin);
         $this->SetFont($this->font,'',$this->font_body_size);
         $this->Cell(32,5,Texto::encodeLatin1('EDAD DEL PACIENTE:'),0,0,'L');
@@ -902,9 +913,13 @@ class PDF_ORDEN_ACCESS extends FPDF
             if( strlen($laboratorista->firma_digital_fullname) > 0) {
                 $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                     chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
-                $qrCode = (new QrCode($url));
-                $qrCode->setSize(250)->setMargin(5)->useForegroundColor(55, 55, 55);
-                $this->Image($qrCode->writeDataUri(), $this->line_begin + 40, $y - 20, 20, 20, 'png');
+                $qrCode = QrCode::create($url);
+                $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
+
+                $writer = new PngWriter();
+                $result = $writer->write($qrCode);
+                $dataUri = $result->getDataUri();
+                $this->Image($dataUri, $this->line_begin + 40, $y - 20, 20, 20, 'png');
                 $this->SetXY($this->line_begin + 60, $y - 16);
                 $this->SetFont($this->font_sign, '', $this->font_body_size);
                 $this->Cell(90, 1, Texto::encodeLatin1("Firmado electrónicamente por:"), $this->debug, 0, 'J');

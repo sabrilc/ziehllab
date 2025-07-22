@@ -2,6 +2,8 @@
 
 namespace app\modules\lab\grids;
 
+use app\modules\lab\bussines\OrdenBussines;
+use app\modules\lab\models\Orden;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -9,7 +11,7 @@ use yii\data\ActiveDataProvider;
 /**
  * UserGrid represents the model behind the Grid form of `app\models\User`.
  */
-class ClienteResultadoGrid extends Orden
+class ClienteResultadoGrid extends OrdenBussines
 {
     
     public $paciente;
@@ -45,7 +47,7 @@ class ClienteResultadoGrid extends Orden
      */
     public function Grid($params)
     {
-        $query = Orden::find();
+        $query = OrdenBussines::find();
         
         $query->joinWith(['paciente']);
         
@@ -82,11 +84,11 @@ class ClienteResultadoGrid extends Orden
         ];
 
         // grid filtering conditions
-        $query->andFilterWhere(['like', 'user.nombres', $this->paciente]);        
+        $query->andFilterWhere(['ilike', 'user.nombres', $this->paciente]);
    
-        $query->andFilterWhere(['like', 'orden.codigo', $this->codigo])
-            ->andFilterWhere(['like', 'valor_total', $this->valor_total])
-            ->andFilterWhere(['like', 'fecha', $this->fecha]);
+        $query->andFilterWhere(['ilike', 'orden.codigo', $this->codigo])
+            ->andFilterWhere(['ilike', 'valor_total', $this->valor_total])
+            ->andFilterWhere(['ilike', 'fecha', $this->fecha]);
 
         return $dataProvider;
     }

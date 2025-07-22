@@ -15,22 +15,18 @@ use app\modules\lab\models\ExamenGermen;
 use app\modules\lab\models\ExamenGermenAntibiotico;
 use app\modules\lab\models\ExamenParametro;
 use app\modules\lab\models\Orden;
-use app\models\PDF_INFORME;
+use app\modules\lab\pdfs\PDF_INFORME;
 use app\modules\site\models\User;
-
 use app\modules\lab\grids\OrdenGrid;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
 use yii\filters\VerbFilter;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
-use yii\widgets\ActiveForm;
 
 
 class OrdenController extends Controller
@@ -46,12 +42,13 @@ class OrdenController extends Controller
                 'rules' => [
                     [
                         'actions' => ['index','index-con-analisis','nueva','editar','paciente-list','view','delete','clientes','add-cliente',
-                                      'borra-agente-cultivo','ingreso-resultado','online-ticket',
+                                      'borra-agente-cultivo','ingreso-resultado','online-ticket','info',
                                        'cliente-buscar','cliente-guardar','analisis-buscar','guardar','print-ticket','test',
                                       'guardar-resultados','imprimir-resultado','ver-resultado',
                                       'finalizar','guardar-prueba-sensiblidad','guardar-germen','borrar-germen',
                                       'examen-plantilla','examenes','prueba-sensibilidad-examen-germen',
-                                      'imprimir','imprimir-prueba','pagar','descuento','poner-en-proceso','enviar-mail','guardar-info','firmar'
+                                      'imprimir','imprimir-prueba','pagar','descuento','poner-en-proceso','enviar-mail',
+                                      'guardar-info','guardar-responsables','firmar'
                             
                          ],
                         'allow' => true,
@@ -142,6 +139,142 @@ class OrdenController extends Controller
 
     /******************** Funciones UI ReactJS *************************/
 
+    public function actionEditar($id)
+    {
+        $model = $this->findModel($id);
+        if(!isset ($model->descuento) ){ $model->descuento=0; };
+        if ($model->load(Yii::$app->request->post())) {
+
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+
+                if(isset(Yii::$app->request->post()['analisis'])){
+                    $examenesSeleccionados=  Yii::$app->request->post()['analisis'];
+                    foreach ($examenesSeleccionados as $examen) {
+
+                        $analisis = Analisis::findOne($examen);
+                        $ordenExamenes = Examen::findOne(['orden_id'=>$model->id,'analisis_id'=>$analisis->id]);
+
+                        if( !isset( $ordenExamenes ) ){
+                            $ordenExamenes= new Examen();
+                            $ordenExamenes->analisis_id=$analisis->id;
+                            $ordenExamenes->precio=$analisis->precio;
+                            $ordenExamenes->orden_id=$model->id;
+                            $ordenExamenes->save(false);
+                        }
+
+
+
+                    }
+
+                    //  Elimina los Examenes que dejaron de seleccionarse
+                    foreach ( Examen::findAll(['orden_id'=>$model->id]) as $examenInDB) {
+                        $debeSerBorrado=true;
+                        foreach ($examenesSeleccionados as $examen) {
+                            if( $examenInDB->analisis_id == $examen){
+                                $debeSerBorrado=false;
+                            }
+                        }
+
+                        if($debeSerBorrado){
+                            foreach ($examenInDB->examenParametros as $examenParametrosInDB) {
+                                $examenParametrosInDB->delete();
+                            }
+                            $examenInDB->delete(); }
+                        else{
+                            //actualizarPrecio
+                            $examenInDB->precio =$examenInDB->analisis->precio;
+                            $examenInDB->save(false);
+                        }
+
+                    }
+
+                    $model->precio = Examen::find()->where(['orden_id'=>$model->id])->sum('precio');
+
+                    $model->valor_total = $model->precio;
+                    $model->firmado_digitalmente = false;
+                    $model->fecha_firmado_digital = null;
+                    $model->borrarDocumentoFirmado();
+                    Registro::onUpdated($model);
+
+
+                }
+
+
+                $transaction->commit();
+            }catch (Exception $e){
+                $transaction->rollBack();
+                return $this->render('editar', [
+                    'model' => $model,
+                ]);
+
+            }
+
+
+            return $this->redirect(['view', 'id' => $model->id]);
+
+        }
+
+        return $this->render('editar', [
+            'model' => $model,
+        ]);
+
+
+    }
+
+
+    public function actionInfo($id)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $orden = OrdenBussines::find()
+            ->with(['paciente', 'examens']) // asegúrate que estén definidas las relaciones
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$orden) {
+            return [
+                'success' => false,
+                'error' => 'Orden no encontrada',
+            ];
+        }
+
+        // Transformar cliente
+        $cliente = $orden->paciente ? [
+            'id' => $orden->paciente->id,
+            'nombres' => $orden->paciente->nombres,
+            'identificacion' => $orden->paciente->identificacion,
+            'email' => $orden->paciente->email,
+            'email_notificacion' => $orden->paciente->email_notificacion,
+            'telefono' => $orden->paciente->telefono,
+            'direccion' => $orden->paciente->direccion,
+            'fecha_nacimiento' => $orden->paciente->fecha_nacimiento,
+            'sexo_id' => $orden->paciente->sexo_id,
+        ] : null;
+
+        // Transformar items
+        $items = [];
+        foreach ($orden->examens as $item) {
+            $items[] = [
+                'idProducto' => $item->analisis_id,
+                'descripcion' => $item->analisis->nombre ?? '',
+                'cantidad' => 1,
+                'precio' => $item->precio,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'orden' => [
+                'id' => $orden->id,
+                'codigo_lab' => $orden->codigo_lab,
+                'cliente' => $cliente,
+                'items' => $items,
+                'descuento' => $orden->porcentaje_desc,
+            ]
+        ];
+    }
+
     public function actionGuardar()
     {
         $connection = Yii::$app->db;
@@ -160,14 +293,31 @@ class OrdenController extends Controller
                 return $this->asJson(['success' => false, 'error' => 'Seleccion un cliente']);
             }
 
+
+            $orden =  OrdenBussines::findOne($post['orden_id']);
+            $isnew=false;
+            if(!$orden){
+                $isnew = true;
+                $orden = new OrdenBussines();
+                $orden->codigo_secreto = OrdenBussines::getCodigoSecreto();
+
+            }
+
+
+
             // Crear orden
-            $orden = new OrdenBussines();
+
             $orden->setScenario('registro');
             $orden->paciente_id = $clienteData['id'];
 
             if (!$orden->save()) {
                 Yii::error('Error al guardar la orden: ' . json_encode($orden->getErrors()), __METHOD__);
                 return $this->asJson(['success' => false, 'errors' => $orden->getErrors()]);
+            }
+            if($isnew){
+                $orden->codigo = str_pad($orden->id, 10, '0', STR_PAD_LEFT);
+                $orden->generateToken();
+                $orden->save(false);
             }
 
             // Decodificar y validar items
@@ -187,36 +337,50 @@ class OrdenController extends Controller
                     throw new \Exception("Análisis con ID {$item['idProducto']} no encontrado.");
                 }
 
-                $ordenExamen = new Examen([
-                    'analisis_id' => $analisis->id,
-                    'precio' => $analisis->precio,
-                    'orden_id' => $orden->id,
-                ]);
-                $ordenExamen->save(false);
+                $ordenExamenes = Examen::findOne(['orden_id'=>$orden->id,'analisis_id'=>$analisis->id]);
 
-                foreach ($analisis->parametros as $parametro) {
-                    $examenParametro = new ExamenParametro([
-                        'examen_id' => $ordenExamen->id,
-                        'parametro_id' => $parametro->id,
-                    ]);
-                    $examenParametro->save(false);
+                if( !isset( $ordenExamenes ) ){
+                    $ordenExamenes= new Examen();
+                    $ordenExamenes->analisis_id=$analisis->id;
+                    $ordenExamenes->precio=$item['precio'];
+                    $ordenExamenes->orden_id=$orden->id;
+                    $ordenExamenes->save(false);
+                }else{
+                    $ordenExamenes->precio=$item['precio'];
+                    $ordenExamenes->save(false);
                 }
+            }
+            //  Elimina los Examenes que dejaron de seleccionarse
+            foreach ( Examen::findAll(['orden_id'=>$orden->id]) as $examenInDB) {
+                $debeSerBorrado=true;
+                foreach ($items as $examen) {
+                    if( $examenInDB->analisis_id == $examen['idProducto']){
+                        $debeSerBorrado=false;
+                    }
+                }
+
+                if($debeSerBorrado){
+                    foreach ($examenInDB->examenParametros as $examenParametrosInDB) {
+                        $examenParametrosInDB->delete();
+                    }
+                    $examenInDB->delete();
+                }
+
+
             }
 
             // Cálculos finales
             $orden->fecha = new Expression('NOW()');
-            $orden->codigo = str_pad($orden->id, 10, '0', STR_PAD_LEFT);
             $orden->cerrada = false;
             $orden->pagado = false;
 
             $orden->precio = Examen::find()->where(['orden_id' => $orden->id])->sum('precio');
-
+            $orden->codigo_lab = isset($post['codigo_lab']) ? floatval($post['codigo_lab']) : 0;
             $orden->porcentaje_desc = isset($post['descuento']) ? floatval($post['descuento']) : 0;
             $orden->descuento = $orden->precio * ($orden->porcentaje_desc / 100);
             $orden->valor_total = $orden->precio - $orden->descuento;
 
-            $orden->codigo_secreto = OrdenBussines::getCodigoSecreto();
-            $orden->generateToken();
+
 
             // Guardar actualización
             if (!$orden->save(false)) {
@@ -360,19 +524,6 @@ public function actionClienteGuardar()
         }, $productos);
     }
 
-    public function actionTest()
-    {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-
-        $orden = Orden::findOne(42116);
-        $ticket = new PDF_ORDEN_TICKET($orden);
-
-       $ticket->outputPDF();
-
-    }
-
-
-
     /********************Fin de funciones UI ReactJS ******************/
 
     public function actionPrintTicket()
@@ -407,13 +558,7 @@ public function actionClienteGuardar()
        }
     }
 	
-	public function actionTicket($id){
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-        $ticket = new PDF_ORDEN_TICKET($orden);
-		$ticket->outputPDF(); 
-    }
-	
-    public function actionPonerEnProceso($id){
+	public function actionPonerEnProceso($id){
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $orden = Orden::find()->where(['id'=>$id])->one();
@@ -483,7 +628,7 @@ public function actionClienteGuardar()
                     
                     'ORDENES' => [
                         'class' => 'codemix\excelexport\ActiveExcelSheet',
-                        'query' => Orden::find()->where(['between', 'fecha', Yii::$app->request->post()['fecha_inicio'],  Yii::$app->request->post()['fecha_fin'] ]),
+                        'query' => OrdenBussines::find()->where(['between', 'fecha', Yii::$app->request->post()['fecha_inicio'],  Yii::$app->request->post()['fecha_fin'] ]),
                         
                         // If not specified, all attributes from `User::attributes()` are used
                         'attributes' => [
@@ -507,7 +652,7 @@ public function actionClienteGuardar()
                     ],
                     'ANALISIS' => [
                         'class' => 'codemix\excelexport\ActiveExcelSheet',
-                        'query' => Examen::find()
+                        'query' => ExamenBussines::find()
                                     ->joinWith('orden','analisis')
                                     ->where(['between', 'fecha', Yii::$app->request->post()['fecha_inicio'],  Yii::$app->request->post()['fecha_fin'] ]),
                         
@@ -551,7 +696,7 @@ public function actionClienteGuardar()
 
     public function actionFirmar($orden_id){
         if(Yii::$app->request->isPost){
-            $orden= Orden::findOne($orden_id);
+            $orden= OrdenBussines::findOne($orden_id);
             return $orden->firmarDigitalmente();
         }
         return json_encode(["errors"=>true, "message"=>"No se ha  encontrado documento a firmar"]);
@@ -642,6 +787,18 @@ public function actionClienteGuardar()
         }
         return "FAIL";
     }
+
+    public function actionGuardarResponsables(){
+        if(isset(Yii::$app->request->post('OrdenBussines')['_id'])){
+            $model = OrdenBussines::findOne( Yii::$app->request->post('OrdenBussines')['_id']);
+            if( $model->load( Yii::$app->request->post() )  ){
+                if($model->save(false)){
+                    return 'OK';
+                }
+            }
+        }
+        return "FAIL";
+    }
     
     //ajax    
     public function actionGuardarResultados(){
@@ -688,73 +845,12 @@ public function actionClienteGuardar()
     
     //ajax
     public function actionExamenes($orden_id){
-        
-        $form = ActiveForm::begin();
+        $this->layout = false;
         $orden = OrdenBussines::findOne($orden_id);
         $orden->_id =$orden->id;
-        $html="<div class='row mt-3 animated fadeIn'>
-                  <div class='col-xs-12 col-sm-12'>
-                    <div class='panel panel-primary'>
-                        <div class='panel-heading'>Orden</div>
-                          <div class='panel-body'
-                              <div class='row'>
-                              <form class='animated fadeIn' id='formularioOrden' onsubmit='return guardarInfoOrden( )' >";
-                             $html.= Html::csrfMetaTags();
-                             $html.= Html::activeHiddenInput($orden,'_id');
-                             $html.='<div class="col-md-6">'. $form->field($orden,'paciente_info')->textarea(['rows' => '3', 'onBlur'=>'guardarInfoOrden()', 'maxlength' => true,'placeholder'=> 'Se muestra unicamente en el formato AccessLab']).'</div>';
-                             $html.= '<div class="col-md-6">'.$form->field($orden,'solicitante_info')->textarea(['rows' => '3', 'onBlur'=>'guardarInfoOrden()', 'maxlength' => true,'placeholder'=> 'Se muestra unicamente en el formato AccessLab']).'</div>';
-                             $html.= '<div class="col-md-12">' 
-                                 .$form->field($orden,'fecha_resultados')->textInput(['onChange'=>'guardarInfoOrden()'])
-                                 .$form->field($orden,'hora_resultados')->textInput().'</div>';
-                  $html.= "</form>  
-                           </div>
-                          
-                         </div>
-                        </div>
-                    </div>     
-                </div>
-            </div>";
-        
-        $html.="<div class='row mt-3 animated fadeIn'>
-                  <div class='col-xs-6 col-sm-3 sidebar-offcanvas'>
-                <div class='panel panel-primary'>
-                    <div class='panel-heading'>Análisis</div>                 
-                        <div class='list-group'>";                                          
-                                foreach ($orden->examens as $item) {
-                                  $html.="<a  class='list-group-item'  onClick=cargarPlantillaExamen($item->id)>". $item->analisis->nombre ."</a>";            
-                                }
-                 $html.="</div>     
-                        <div class='btn-group' role='group' aria-label='Opciones'>
-                          <button type='button' class='btn btn-primary'  onclick='finalizarOrden($orden_id)'>Finalizar Orden </button>
-                         <button type='button' class='btn btn-default'  onclick='imprimirOrden($orden_id)'>Imprimir Orden</button>
-                        </div>                   
-                     
-                     </div> 
-                    </div>  
-              
 
-                 <div class='col-xs-12 col-sm-9'>                
-                    <div class='panel panel-default'>
-                        <div class='panel-heading'>Plantilla</div>
-                         <div class='panel-body'  id='area_de_trabajo'> </div>                 
-                    
-                    </div>
-                 </div>
-               </div>";
-                 $html.=" <script>
-  $( function() {
-    $( '#orden-fecha_resultados' ).datepicker($.extend({}, $.datepicker.regional['es'], { \"dateFormat\":\"yy-mm-dd\"}));   
-    $('#orden-hora_resultados').clockTimePicker( {
-         onChange: function(newVal, oldVal) { guardarInfoOrden(); },
-      
-   });
+        return $this->render('ingreso_resultados/_examenes',['orden'=>$orden]);
 
- $('#orden-hora_resultados').clockTimePicker('value', '". date('H:i', strtotime( '2000-01-01 ' . $orden->hora_resultados)). "');   
-
-  } );
- 
-  </script>";
-        return $html;
         
     } 
     
@@ -878,16 +974,7 @@ public function actionClienteGuardar()
         }        
     }
 	
-	    public function actionImprimirPrueba($id){
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-        $orden= Orden::findOne($id);
-        #if( !$orden->firmado_digitalmente){
-            return $orden->pdf();
-        #}else{
-        #   return Yii::$app->response->sendFile(__DIR__."/../media/ordenes/".$orden->codigo.'.pdf',$orden->codigo.'.pdf' , ['inline' => true])->send();
-       # }        
-    }
-	
+
 
 	
        
@@ -951,7 +1038,7 @@ public function actionClienteGuardar()
 
 
 
-    public function actionEditar($id)
+    public function actionEditarOld($id)
     {
         $model = $this->findModel($id);
         if(!isset ($model->descuento) ){ $model->descuento=0; };

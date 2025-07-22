@@ -3,12 +3,11 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\TipoMuestra;
-use app\models\TipoMuestraGrid;
+use app\modules\lab\models\TipoMuestra;
+use app\modules\lab\grids\TipoMuestraGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use app\models\Registro;
+use app\modules\lab\models\Registro;
 
 /**
  * TipoMuestraController implements the CRUD actions for TipoMuestra model.

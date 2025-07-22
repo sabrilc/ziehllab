@@ -1,10 +1,12 @@
 <?php
-namespace components;
+namespace utils\components;
+
 use inquid\pdf\FPDF;
 
 
 class Variable
 {
+    public $context;
     private $varname;
     private $position;
     
@@ -60,7 +62,7 @@ class PDF_MemImage extends FPDF
     {
         parent::__construct($orientation, $unit, $format);
         // Register var stream protocol
-        stream_wrapper_register('var', 'components\Variable');
+        stream_wrapper_register('var', 'utils\components\Variable');
     }
     
     function MemImage($data, $x=null, $y=null, $w=0, $h=0, $link='')

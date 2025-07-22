@@ -2,11 +2,11 @@
 
 namespace app\modules\lab\controllers;
 
-use app\models\Analisis;
-use app\models\AnalisisGrid;
-use app\models\ParametroGrid;
-use app\models\Registro;
-use app\models\SeccionGrid;
+use app\modules\lab\models\Analisis;
+use app\modules\lab\grids\AnalisisGrid;
+use app\modules\lab\grids\ParametroGrid;
+use app\modules\lab\models\Registro;
+use app\modules\lab\grids\SeccionGrid;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\Controller;

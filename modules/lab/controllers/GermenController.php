@@ -3,12 +3,10 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Germen;
-use app\models\GermenGrid;
+use app\modules\lab\models\Germen;
+use app\modules\lab\grids\GermenGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use app\models\GermenAgenteMicrobianoGrid;
 
 /**
  * GermenController implements the CRUD actions for Germen model.

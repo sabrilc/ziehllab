@@ -1,6 +1,6 @@
 <?php
 
-use luya\bootstrap4\grid\GridView;
+use yii\grid\GridView;
 use yii\helpers\Html;
 
 
