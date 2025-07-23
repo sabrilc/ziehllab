@@ -165,7 +165,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                     $this->MultiCell(105, 4, Texto::encodeLatin1($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
                 }
             }else{
-            $urlImage = __DIR__ . '/ziehllab/' .$laboratorista->dir_imagen_firma;
+            $urlImage = __DIR__ . '/../../../' .$laboratorista->dir_imagen_firma;
             if (@getimagesize($urlImage)) {
                 $this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 28,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
             }}
@@ -208,7 +208,7 @@ class PDF_ORDEN_ACCESS extends FPDF
             else {
 
                 $this->SetX(100);
-                $urlImage = __DIR__ . '/ziehllab/' .$responsableTecnico->dir_imagen_firma;
+                $urlImage = __DIR__ . '/../../../' .$responsableTecnico->dir_imagen_firma;
                 if (@getimagesize($urlImage)) {
                     //$this->Image( $urlImage, $this->GetX()+25, $this->GetY() - 25,40,  20,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
                     $this->Image($urlImage, $this->GetX() + 17, $this->GetY() - 28, 60, 30, pathinfo($urlImage, PATHINFO_EXTENSION));
@@ -560,7 +560,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                                      $this->MultiCell(105, 4, Texto::encodeLatin1($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
                                  }
 							}else{
-							$urlImage = __DIR__ . '/ziehllab/' .$laboratorista->dir_imagen_firma;
+							$urlImage = __DIR__ . '/../../../' .$laboratorista->dir_imagen_firma;
 							if (@getimagesize($urlImage)) {
 								$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 34,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
 								}
@@ -606,7 +606,7 @@ class PDF_ORDEN_ACCESS extends FPDF
 								}
 								else {
 									$this->SetX(100);
-									$urlImage = __DIR__ . '/ziehllab/' .$responsableTecnico->dir_imagen_firma;
+									$urlImage = __DIR__ . '/../../../' .$responsableTecnico->dir_imagen_firma;
 									if (@getimagesize($urlImage)) {
 										$this->Image( $urlImage, $this->GetX()+17, $this->GetY() - 34,60,  30,  pathinfo( $urlImage, PATHINFO_EXTENSION ) );
 									}
@@ -929,7 +929,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                 $this->MultiCell(105, 4, Texto::encodeLatin1($this->subjectSignature($laboratorista->firma_digital_fullname)), $this->debug, 'J', 0);
             }
         }else {
-            $urlImage =  __DIR__ . '/ziehllab/' .$laboratorista->dir_imagen_firma;;
+            $urlImage =  __DIR__ . '/../../../' .$laboratorista->dir_imagen_firma;;
             if (@getimagesize($urlImage)) {
                 $this->Image($urlImage, $this->line_begin + 45, $this->GetY() - 32, 60, 30, pathinfo($urlImage, PATHINFO_EXTENSION));
             }

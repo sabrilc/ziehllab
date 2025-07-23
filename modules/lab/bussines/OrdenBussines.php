@@ -260,11 +260,12 @@ class OrdenBussines extends Orden
             return json_encode(["errors"=>true, "message"=> "La orden No.".$this->codigo." debe tener asignado un laboratorista"]);
         }
         $laboratorista =$this->laboratorista;
+        $laboratorista_p12_dir = __DIR__ . "/../../.." .$laboratorista->dir_firma_digital;
 
-        if ( !Tools::validP12File( __DIR__ . "/ziehllab/" .$laboratorista->dir_firma_digital)){
+        if ( !Tools::validP12File($laboratorista_p12_dir)){
             return json_encode(["errors"=>true, "message"=> $laboratorista->nombres. " no tiene firma digital"]);
         }
-        $files[]= __DIR__ . "/ziehllab/" .$laboratorista->dir_firma_digital;
+        $files[]= $laboratorista_p12_dir;
         $secrets[]=$laboratorista->firma_digital_secret;
 
 
@@ -273,10 +274,12 @@ class OrdenBussines extends Orden
         }
 
         $tecnico =$this->responsableTecnico;
-        if ( !Tools::validP12File( __DIR__ . "/ziehllab/" .$tecnico->dir_firma_digital)){
+        $tecnico_p12_dir = __DIR__ . "/../../../" .$tecnico->dir_firma_digital;
+        
+        if ( !Tools::validP12File( $tecnico_p12_dir)){
             return json_encode(["errors"=>true, "message"=> $tecnico->nombres. "no tiene firma digital"]);
         }
-        $files[]= __DIR__ . "/ziehllab/" .$tecnico->dir_firma_digital;
+        $files[]= $tecnico_p12_dir;
         $secrets[]=$tecnico->firma_digital_secret;
 
         foreach ($files as $index => $file) {
@@ -307,7 +310,7 @@ class OrdenBussines extends Orden
         if ( $response->errors){
             return $result;
         }else{
-            $fp = fopen(__DIR__ . '/../media/ordenes/' . $this->codigo.'.pdf', 'w');
+            $fp = fopen(__DIR__ . '/../../../media/ordenes/' . $this->codigo.'.pdf', 'w');
             fwrite($fp, base64_decode($response->pdf));
             fclose($fp);
             $this->save();

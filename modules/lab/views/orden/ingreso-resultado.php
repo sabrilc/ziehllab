@@ -12,9 +12,7 @@ use app\assets\JQueryClockTimePickerAsset;
 use app\assets\OrdenPageAsset;
 use app\assets\JSLoadingOverlayAsset;
 use yii\jui\JuiAsset;
-/* @var $this yii\web\View */
-/* @var $model app\modules\lab\models\Orden */
-/* @var $form yii\widgets\ActiveForm */
+use app\assets\ReactJsAsset;
 
 
 IngresoResultadoPageAsset::register($this);
@@ -22,6 +20,13 @@ OrdenPageAsset::register($this);
 JSLoadingOverlayAsset::register($this);
 JuiAsset::register($this);
 JQueryClockTimePickerAsset::register($this);
+ReactJsAsset::register($this);
+
+/* @var $this yii\web\View */
+/* @var $model app\modules\lab\models\Orden */
+/* @var $form yii\widgets\ActiveForm */
+
+
 ?>
 <div class='row'> 
 <div class='col-12'>
@@ -113,3 +118,4 @@ JQueryClockTimePickerAsset::register($this);
 
 
 
+<script type="text/babel" src="<?= \yii\helpers\Url::to('@web/static/js/orden.print.pdf.jsx') ?>"></script>

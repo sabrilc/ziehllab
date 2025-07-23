@@ -44,7 +44,7 @@ class OrdenController extends Controller
                         'actions' => ['index','index-con-analisis','nueva','editar','paciente-list','view','delete','clientes','add-cliente',
                                       'borra-agente-cultivo','ingreso-resultado','online-ticket','info',
                                        'cliente-buscar','cliente-guardar','analisis-buscar','guardar','print-ticket','test',
-                                      'guardar-resultados','imprimir-resultado','ver-resultado',
+                                      'guardar-resultados','imprimir-resultado','ver-resultado','online-orden',
                                       'finalizar','guardar-prueba-sensiblidad','guardar-germen','borrar-germen',
                                       'examen-plantilla','examenes','prueba-sensibilidad-examen-germen',
                                       'imprimir','imprimir-prueba','pagar','descuento','poner-en-proceso','enviar-mail',
@@ -963,6 +963,15 @@ public function actionClienteGuardar()
     }
     
     
+      public function actionOnlineOrden($id){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
+        $orden= OrdenBussines::findOne($id);
+        if( !$orden->firmado_digitalmente){
+            return $orden->pdf();
+        }else{
+           return Yii::$app->response->sendFile(__DIR__ . "/../../../media/ordenes/" .$orden->codigo.'.pdf',$orden->codigo.'.pdf' , ['inline' => true])->send();
+        }        
+    }
     
     public function actionImprimir($id){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;

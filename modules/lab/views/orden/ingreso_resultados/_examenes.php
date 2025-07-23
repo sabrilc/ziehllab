@@ -19,7 +19,8 @@ use yii\widgets\ActiveForm;
                         </div>
                         <div class='btn-group' role='group' aria-label='Opciones'>
                           <button type='button' class='btn btn-primary'  onclick='finalizarOrden(<?=$orden->id?>)'>Finalizar Orden </button>
-                         <button type='button' class='btn btn-default'  onclick='imprimirOrden(<?=$orden->id?>)'>Imprimir Orden</button>
+                         <!--<button type='button' class='btn btn-default'  onclick='imprimirOrden(<?=$orden->id?>)'>Imprimir Orden</button>-->
+						 <div id="orden-print-pdf" data-ordenid="<?=$orden->id?>"></div>
                         </div>                   
                      
                      </div> 
@@ -72,5 +73,13 @@ use yii\widgets\ActiveForm;
 
       } )
        inicializarSelect2()
-     //  $('.select2me').select2();
+    
+		  const container = document.getElementById("orden-print-pdf");
+		  const props = {
+			ordenId: container.dataset.ordenid			
+		  };
+		  
+		 
+		  const root = ReactDOM.createRoot(container);
+		  root.render(React.createElement(PdfModal, props));
  </script>

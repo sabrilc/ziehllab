@@ -86,20 +86,20 @@ class Laboratorista extends \yii\db\ActiveRecord
     public function upload()
     {
         if( !is_null( $this->imageFile)){
-            $folder = __DIR__ . '/../media/imagen/firmas/' . $this->id . 'Laboratorista.php/';
+            $folder = __DIR__ . '/../../../media/imagen/firmas/' . $this->id . '/';
             Tools::makeFolder($folder);
             $file = $folder. $this->imageFile->baseName . '.' . $this->imageFile->extension;
-            Tools::removeFile(__DIR__ . '/ziehllab/' .$this->dir_imagen_firma);
+            Tools::removeFile(__DIR__ . '/../../../' .$this->dir_imagen_firma);
             $this->imageFile->saveAs($file);
             $filedb='/media/imagen/firmas/'.$this->id.'/'. $this->imageFile->baseName . '.' . $this->imageFile->extension;
             $this->dir_imagen_firma = $filedb;
             $this->save(false);
         }
         if( !is_null( $this->p12File)){
-            $folder = __DIR__ . '/../media/signatures/' . $this->id . 'Laboratorista.php/';
+            $folder = __DIR__ . '/../../../media/signatures/' . $this->id . 'Laboratorista.php/';
             Tools::makeFolder($folder);
             $file = $folder. $this->p12File->baseName . '.' . $this->p12File->extension;
-            Tools::removeFile(__DIR__ . '/ziehllab/' .$this->dir_firma_digital);
+            Tools::removeFile(__DIR__ . '/../../../' .$this->dir_firma_digital);
             $this->firma_digital_fullname='';
             $this->p12File->saveAs($file);
             $filedb='/media/signatures/'.$this->id.'/'. $this->p12File->baseName . '.' . $this->p12File->extension;
@@ -118,7 +118,7 @@ class Laboratorista extends \yii\db\ActiveRecord
 
     public function imageFirma()
     {
-        return Html::tag("img",[],["src"=> Tools::imageToBase64(__DIR__ . '/ziehllab/' .$this->dir_imagen_firma),
+        return Html::tag("img",[],["src"=> Tools::imageToBase64(__DIR__ . '/../../../' .$this->dir_imagen_firma),
             "width"=>"150px"
            ]);
     }
@@ -128,7 +128,7 @@ class Laboratorista extends \yii\db\ActiveRecord
         if( strlen($this->firma_digital_fullname)>3){
         return Html::tag("div",
             Html::tag("div",
-                Html::tag("img", [], ["src" => Tools::imageToBase64(__DIR__ . '/../media/imagen/defaults/Fingerprint.png'),
+                Html::tag("img", [], ["src" => Tools::imageToBase64(__DIR__ . '/../../../media/imagen/defaults/Fingerprint.png'),
                     "width" => "150px"])
                 , ["class" => "col col-md-2"]) . Html::tag("div",
                 Html::tag("h4", $this->firma_digital_fullname, [])
@@ -147,7 +147,7 @@ class Laboratorista extends \yii\db\ActiveRecord
             $url =  \Yii::$app->params['signature_api'].'/api/sign/fullname';
 
             $files = [
-                __DIR__ . '/ziehllab/' .$this->dir_firma_digital,
+                __DIR__ . '/../../../' .$this->dir_firma_digital,
             ];
             $secrets=[Laboratorista::findOne(['id'=>$this->id])->firma_digital_secret];
 
