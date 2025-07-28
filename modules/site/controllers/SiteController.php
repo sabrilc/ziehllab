@@ -3,13 +3,13 @@
 namespace app\modules\site\controllers;
 
 use app\modules\lab\models\Orden;
+use app\modules\lab\models\Registro;
+use app\modules\site\bussines\UserBussines;
 use app\modules\site\forms\ContactForm;
 use app\modules\site\forms\LoginForm;
 use app\modules\site\forms\PasswordResetRequestForm;
-use app\models\Registro;
 use app\modules\site\forms\ResetPasswordForm;
 use app\modules\site\models\Settings;
-use app\modules\site\models\User;
 use Yii;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
@@ -116,7 +116,7 @@ class SiteController extends Controller
     
     public function actionAcount()
     {
-        $model = User::findOne(['id'=> Yii::$app->user->identity->id]);
+        $model = UserBussines::findOne(['id'=> Yii::$app->user->identity->id]);
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             unset($model->password);
