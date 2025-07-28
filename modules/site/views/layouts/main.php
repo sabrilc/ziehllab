@@ -94,8 +94,9 @@ $setting = Settings::findOne(1);
 
 </head>
 
- <?php $this->beginBody() ?>
+
 <body class="wrapper">
+<?php $this->beginBody() ?>
 <?php
 NavBar::begin( [
               // 'brandLabel' => Html::img('@web/imagen/ziehl.png', ['alt'=>Yii::$app->name,'style'=>'max-height: 100%; height: 100%; -o-object-fit: contain; object-fit: contain;']),
@@ -317,7 +318,7 @@ setTimeout(function(){  $('#alert-flash').remove(); }, 3000);
 ")?>
 
 
-<?php $this->endPage() ?>
+
 <script src="/static/themes/plugins/select2/select2.min.js" type="text/javascript"></script>
 <script>
     function inicializarSelect2(selector = 'select.select2me') {
@@ -337,3 +338,4 @@ setTimeout(function(){  $('#alert-flash').remove(); }, 3000);
 </script>
 </html>
 
+<?php $this->endPage() ?>

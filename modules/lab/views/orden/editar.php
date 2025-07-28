@@ -14,6 +14,7 @@ $this->params['breadcrumbs'][] = 'Editar';
 ?>
 
 <div id="react-root"></div>
-
-<!-- Incluir el archivo JSX con type="text/babel" -->
+<?php $this->registerJsFile('@web/static/js/ordenNueva.js', ['position' => \yii\web\View::POS_END]); ?>
+<!-- Incluir el archivo JSX con type="text/babel"
 <script type="text/babel" src="<?= \yii\helpers\Url::to('@web/static/js/orden.nueva.jsx') ?>"></script>
+-->

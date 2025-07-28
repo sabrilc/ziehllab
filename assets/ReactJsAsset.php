@@ -22,10 +22,10 @@ class ReactJsAsset extends AssetBundle
     public $css = [ ];
        
     public $js = [ 
-        'react/umd/react.development.js',
-        'react-dom/umd/react-dom.development.js',
+        'react/umd/react.production.min.js',
+        'react-dom/umd/react-dom.production.min.js',
         'axios/dist/axios.min.js',
-        '@babel/standalone/babel.min.js'
+        //'@babel/standalone/babel.min.js'
     ];
     public $depends = [
         'app\assets\PaperThemeAsset'

@@ -116,6 +116,6 @@ ReactJsAsset::register($this);
 <?php Modal::end();?>
 
 
+<?php $this->registerJsFile( '@web/static/js/ordenPrintPdf.js', [ 'position'=> \yii\web\View::POS_END]) ?>
 
-
-<script type="text/babel" src="<?= \yii\helpers\Url::to('@web/static/js/orden.print.pdf.jsx') ?>"></script>
+<!--<script type="text/babel" src="<?= \yii\helpers\Url::to('@web/static/js/orden.print.pdf.jsx') ?>"></script>-->

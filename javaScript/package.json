@@ -1,24 +1,36 @@
 {
   "name": "javascript",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node transpile-and-minify.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
     "@babel/standalone": "^7.28.1",
     "@mdi/font": "^3.6.95",
     "axios": "^1.10.0",
+    "babel-loader": "^10.0.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.7.0",
     "jquery-clock-timepicker": "^2.6.4",
     "js-loading-overlay": "^1.2.0",
+    "mini-css-extract-plugin": "^2.9.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sweetalert": "^2.1.2",
     "typeahead.js": "^0.11.1"
-  }
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.28.0",
+    "@babel/plugin-syntax-jsx": "^7.27.1",
+    "terser": "^5.43.1"
+  },
+  "keywords": [],
+  "description": ""
 }
