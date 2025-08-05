@@ -65,7 +65,16 @@ class DocumentosController extends Controller
             $orden= OrdenBussines::findOne(['token'=> $token]);
             if( !is_null( $orden )) {
                 if ($orden->pagado){
-                    return $orden->pdf();
+                    if( !$orden->firmado_digitalmente){
+                        return $orden->pdf();
+                    }else{
+                        $ruta_archivo=__DIR__ . "/../../../media/ordenes/" .$orden->codigo.'.pdf';
+                        if (file_exists($ruta_archivo)) {
+                            return Yii::$app->response->sendFile($ruta_archivo,$orden->codigo.'.pdf' , ['inline' => true])->send();
+                        } else {
+                            return $orden->pdf();
+                        }
+                    }
                 }else{
                     $pdf = new PDF_ORDEN_NO_PAGADA($orden);
                     $pdf->outputPDF(); // Envía PDF al navegador
