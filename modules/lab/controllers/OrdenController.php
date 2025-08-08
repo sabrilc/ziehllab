@@ -761,7 +761,8 @@ public function actionClienteGuardar()
         $examenGermen = new ExamenGermen();        
         if ($examenGermen->load(Yii::$app->request->post())) {  
             $mensaje='El Germen ya ha sido ingresado en el Cultivo..!';
-            $germenEnCultivo= ExamenGermen::find()->where(['examen_id'=>$examenGermen->examen_id,'germen_id'=>$examenGermen->germen_id])->one();
+			$germenId = $examenGermen->germen_id !== '' ? $examenGermen->germen_id : null;
+            $germenEnCultivo= ExamenGermen::find()->where(['examen_id'=>$examenGermen->examen_id,'germen_id'=>$germenId])->one();
             if($germenEnCultivo==null){
                 $examenGermen->save();                
                 $mensaje='Transacion Exitosa..!';

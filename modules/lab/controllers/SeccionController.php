@@ -3,10 +3,10 @@
 namespace app\modules\lab\controllers;
 
 use Yii;
-use app\models\Analisis;
-use app\models\Registro;
-use app\models\Seccion;
-use app\models\SeccionGrid;
+use app\modules\lab\models\Analisis;
+use app\modules\lab\models\Registro;
+use app\modules\lab\models\Seccion;
+use app\modules\lab\grid\SeccionGrid;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

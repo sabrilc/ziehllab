@@ -1,0 +1,16 @@
+[0;1;31m×[0m fail2ban.service - Fail2Ban Service
+     Loaded: loaded (]8;;file://ziehllab.com/usr/lib/systemd/system/fail2ban.service/usr/lib/systemd/system/fail2ban.service]8;;; [0;1;32menabled[0m; preset: [0;1;38;5;185mdisabled[0m)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Mon 2025-07-21 21:21:57 -05; 24h ago
+   Duration: 94ms
+       Docs: ]8;;man:fail2ban(1)man:fail2ban(1)]8;;
+    Process: 2089 ExecStartPre=/bin/mkdir -p /run/fail2ban (code=exited, status=0/SUCCESS)
+    Process: 2091 ExecStart=/usr/bin/fail2ban-server -xf start [0;1;31m(code=exited, status=255/EXCEPTION)[0m
+   Main PID: 2091 (code=exited, status=255/EXCEPTION)
+        CPU: 94ms
+
+jul 21 21:21:57 ziehllab.com systemd[1]: Starting Fail2Ban Service...
+jul 21 21:21:57 ziehllab.com systemd[1]: Started Fail2Ban Service.
+jul 21 21:21:57 ziehllab.com fail2ban-server[2091]: 2025-07-21 21:21:57,389 fail2ban                [2091]: ERROR   Failed during configuration: '%' must be followed by '%' or '(', found: '%27|%22|\\\')(\\s|%20)*(or|and)(\\s|%20)+.*HTTP.*"'
+jul 21 21:21:57 ziehllab.com fail2ban-server[2091]: 2025-07-21 21:21:57,392 fail2ban                [2091]: ERROR   Async configuration of server failed
+jul 21 21:21:57 ziehllab.com systemd[1]: [0;1;39m[0;1;31m[0;1;39mfail2ban.service: Main process exited, code=exited, status=255/EXCEPTION[0m
+jul 21 21:21:57 ziehllab.com systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mfail2ban.service: Failed with result 'exit-code'.[0m

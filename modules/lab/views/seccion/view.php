@@ -7,8 +7,8 @@ use yii\widgets\DetailView;
 /* @var $model app\models\Seccion */
 
 $this->title = $model->descripcion;
-$this->params['breadcrumbs'][] = ['label' => 'Análisis', 'url' => ['/analisis/index']];
-$this->params['breadcrumbs'][] = ['label' => $analisis->nombre, 'url' => ['/analisis/update','id'=>$analisis->id]];
+$this->params['breadcrumbs'][] = ['label' => 'Análisis', 'url' => ['/lab/analisis/index']];
+$this->params['breadcrumbs'][] = ['label' => $analisis->nombre, 'url' => ['/lab/analisis/update','id'=>$analisis->id]];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
