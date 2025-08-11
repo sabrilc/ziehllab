@@ -187,7 +187,7 @@ class PDF_ORDEN_ACCESS extends FPDF
 
             if( $this->digital_sign){
                 if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
-                    $url = Texto::encodeLatin1("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
+                    $url = Texto::encodeUtf8("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
                         chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
                     $qrCode = QrCode::create($url);
                     $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
