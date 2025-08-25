@@ -1,6 +1,6 @@
 function cargarExamenes(){
 	 var orden_id =$('select[id=cbox_orden]').val();
-	 
+	 $('#examenes').html("");
 	 $.ajax({
 		  method: "POST",
 		  url: "/lab/orden/examenes?orden_id="+orden_id,
@@ -10,6 +10,14 @@ function cargarExamenes(){
 		})
 		  .done(function( data ) {
 		   $('#examenes').html(data);
+           const container = document.getElementById("orden-print-pdf");
+			if (container && !container.dataset.reactMounted) {
+				container.dataset.reactMounted = "true"; // marcar como inicializado
+				const props = { ordenId: container.dataset.ordenid };
+				const root = ReactDOM.createRoot(container);
+				root.render(React.createElement(PdfModal, props));
+			}
+
 		  });
 	}
 

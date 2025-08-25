@@ -147,7 +147,7 @@ class PDF_ORDEN_ACCESS extends FPDF
         }
             if( $this->digital_sign){
                 if( strlen($laboratorista->firma_digital_fullname) > 0) {
-                    $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                    $url = Texto::encodeUtf8("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                         chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
                     $qrCode = QrCode::create($url);
                     $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
@@ -220,10 +220,10 @@ class PDF_ORDEN_ACCESS extends FPDF
 
         $y = $this->GetY();
         if( strlen($this->orden->token)>50 ){
-            $url = 'https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token;
-            $qrCode = (new QrCode($url));
+            $url = Texto::encodeUtf8('https://'.$_SERVER['HTTP_HOST'].'/documentos/analisis?token='.$this->orden->token);
+            
         } else{
-            $url=$this->orden->codigo;
+            $url = Texto::encodeUtf8($this->orden->codigo);
         }
 
         $qrCode = QrCode::create($url);
@@ -344,7 +344,7 @@ class PDF_ORDEN_ACCESS extends FPDF
         $this->MultiCell(30,5,Texto::encodeLatin1('Unicodigo: '.$this->empresa->unicodigo),$this->debug ,'J',0);
 
         $this->ln();
-        $url = $this->empresa->access_url;
+        $url = Texto::encodeUtf8($this->empresa->access_url);
         $qrCode = QrCode::create($url);
         $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
 
@@ -541,7 +541,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                             $this->MultiCell(50,3,Texto::encodeLatin1('Responsable de la emisión de los resultados de la prueba'), $this->debug,'C');
 							 if( $this->digital_sign){
                                  if( strlen($laboratorista->firma_digital_fullname) > 0) {
-                                     $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                                     $url = Texto::encodeUtf8("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                                          chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
                                      $qrCode = QrCode::create($url);
                                      $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
@@ -583,7 +583,7 @@ class PDF_ORDEN_ACCESS extends FPDF
                             $this->MultiCell(50,3,Texto::encodeLatin1('Firma del profesional que valida la prueba'), $this->debug,'C');
 							   if( $this->digital_sign){
                                    if( strlen($responsableTecnico->firma_digital_fullname) > 0) {
-                                       $url = Texto::encodeLatin1("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
+                                       $url = Texto::encodeUtf8("FIRMADO POR: " . $responsableTecnico->firma_digital_fullname .
                                            chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
                                        $qrCode = QrCode::create($url);
                                        $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));
@@ -623,7 +623,7 @@ class PDF_ORDEN_ACCESS extends FPDF
 
 
                         $data = (strlen($this->orden->token) > 50)
-                            ? 'https://' . $_SERVER['HTTP_HOST'] . '/documentos/analisis?token=' . $this->orden->token
+                            ? Texto::encodeUtf8('https://' . $_SERVER['HTTP_HOST'] . '/documentos/analisis?token=' . $this->orden->token)
                             : $this->orden->codigo;
 
                         $qrCode = QrCode::create($data);
@@ -805,9 +805,9 @@ class PDF_ORDEN_ACCESS extends FPDF
         $data = '';
 
         if (strlen($this->orden->token) > 50) {
-            $data = 'https://' . $_SERVER['HTTP_HOST'] . '/documentos/analisis?token=' . $this->orden->token;
+            $data = Texto::encodeUtf8('https://' . $_SERVER['HTTP_HOST'] . '/documentos/analisis?token=' . $this->orden->token);
         } else {
-            $data = $this->orden->codigo;
+            $data = Texto::encodeUtf8($this->orden->codigo);
         }
 
         // 1. Instanciar el objeto QrCode y establecer los datos
@@ -911,7 +911,7 @@ class PDF_ORDEN_ACCESS extends FPDF
             $this->Cell(140, 3, Texto::encodeLatin1($laboratorista->cargo), 0, 0, 'C');
         if($this->digital_sign){
             if( strlen($laboratorista->firma_digital_fullname) > 0) {
-                $url = Texto::encodeLatin1("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
+                $url = Texto::encodeUtf8("FIRMADO POR: " . $laboratorista->firma_digital_fullname .
                     chr(10) . "FECHA: " . $this->orden->fecha_firmado_digital);
                 $qrCode = QrCode::create($url);
                 $qrCode->setSize(250)->setMargin(5)->setForegroundColor(new Color(55, 55, 55));

@@ -73,13 +73,4 @@ use yii\widgets\ActiveForm;
 
       } )
        inicializarSelect2()
-    
-		  const container = document.getElementById("orden-print-pdf");
-		  const props = {
-			ordenId: container.dataset.ordenid			
-		  };
-		  
-		 
-		  const root = ReactDOM.createRoot(container);
-		  root.render(React.createElement(PdfModal, props));
  </script>
