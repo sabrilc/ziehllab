@@ -1,6 +1,6 @@
 <?php
 
-use app\models\TipoAnalisis;
+use app\modules\lab\models\TipoAnalisis;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\View;

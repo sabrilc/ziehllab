@@ -96,7 +96,7 @@ class Laboratorista extends \yii\db\ActiveRecord
             $this->save(false);
         }
         if( !is_null( $this->p12File)){
-            $folder = __DIR__ . '/../../../media/signatures/' . $this->id . 'Laboratorista.php/';
+            $folder = __DIR__ . '/../../../media/signatures/' . $this->id . '/';
             Tools::makeFolder($folder);
             $file = $folder. $this->p12File->baseName . '.' . $this->p12File->extension;
             Tools::removeFile(__DIR__ . '/../../../' .$this->dir_firma_digital);

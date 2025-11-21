@@ -106,7 +106,7 @@ NavBar::begin( [
 ]);
 echo Nav::widget([
     'items' => [
-        ['label' => 'INICIO', 'url' => ['site/index'],   'linkOptions' => [], ],
+        ['label' => 'INICIO', 'url' => ['/site/index'],   'linkOptions' => [], ],
         ['label' =>  '<span class="nav-text">NOSOTROS</span>','encode' => false, 'url' => ['site/nosotros'],'visible'=> Yii::$app->user->isGuest  ],
         ['label' =>  '<span class="nav-text">CONTACTO</span>','encode' => false, 'url' => ['/site/contacto'], 'visible'=> Yii::$app->user->isGuest ],
 

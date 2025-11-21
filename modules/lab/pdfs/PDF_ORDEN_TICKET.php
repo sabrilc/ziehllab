@@ -151,7 +151,7 @@ class PDF_ORDEN_TICKET extends FPDF
         //$this->Cell(0, 5, 'Firma / Sello', 0, 1, 'R'); // Texto genérico para el pie
 
         // --- QR (Posicionado abajo a la izquierda como en el informe) ---
-        $this->SetY($this->GetPageHeight() - 70); // Ajusta la posición Y para el QR
+        $this->SetY($this->GetPageHeight() - 45); // Ajusta la posición Y para el QR
         $this->SetX(15); // Posiciona en el margen izquierdo
         $this->QrCode(); // Llama a tu método QrCode
     }
@@ -186,36 +186,8 @@ class PDF_ORDEN_TICKET extends FPDF
 
         // 7. Insertar imagen QR en el PDF
         $this->MultiCell(50, 5, 'Escanea el QR para consultar resultados ', 0, 'L', 0);
-        $this->Image($dataUri, 15, $this->GetY(), 40, 40, 'png');
+        $this->Image($dataUri, 15, $this->GetY(), 30, 30, 'png');
     }
-
-/*
-    public function QrCode()
-    {
-        // Tu método QrCode genera un solo QR, que es adecuado para un recibo.
-        $data = (strlen($this->orden->token) > 50)
-            ? 'https://' . $_SERVER['HTTP_HOST'] . '/documentos/orden?token=' . $this->orden->token // Cambiado a 'orden' si el token es para verificar la orden
-            : $this->orden->codigo;
-
-        /*$qrCode = QrCode::create($data)
-           // ->setEncoding(new Encoding('UTF-8'))
-            ->setSize(200)
-            ->setMargin(10);
-
-        $qrCode = QrCode::create($data)
-            ->setSize(300)
-            ->setMargin(10)
-            ->setForegroundColor(new Color(33, 97, 255)) // Color azul
-            ->setBackgroundColor(new Color(255, 255, 255)); // Blanco;
-
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
-        $dataUri = $result->getDataUri();
-        // 5. Insertar la imagen en FPDF usando el Data URI
-        $this->MultiCell(50, 5, 'Escanea el QR para consultar resultados ', 0, 'L', 0);
-        $this->Image($dataUri, 15, $this->GetY(), 40, 40, 'png');
-
-    }*/
 
     public function outputPDF()
     {
