@@ -66,7 +66,7 @@ class Orden extends \yii\db\ActiveRecord
             [['codigo','codigo_lab'], 'string', 'max' => 10],
             [['codigo_secreto'], 'string', 'max' => 6],
             [['token'], 'string', 'max' => 100],
-            [['fecha_resultados','hora_resultados'], 'filter', 'filter'=>'trim'],
+            //[['fecha_resultados','hora_resultados'], 'filter', 'filter'=>'trim'],
             [['firmado_digitalmente','pagado', 'cerrada'], 'boolean'],
             [['paciente_info', 'solicitante_info'], 'string', 'max' => 100],
             [['paciente_id'], 'required', 'on' => 'registro'],
