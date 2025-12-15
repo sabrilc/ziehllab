@@ -68,7 +68,7 @@ use yii\widgets\ActiveForm;
         $( '#ordenbussines-fecha_resultados' ).datepicker($.extend({}, $.datepicker.regional['es'], { "dateFormat":"yy-mm-dd"}));
         $('#ordenbussines-hora_resultados').clockTimePicker( {
              onChange: function(newVal, oldVal) { guardarInfoOrden(); }, })
-        $('#ordenbussines-hora_resultados').clockTimePicker('value', ' <?=date('H:i', strtotime( '2000-01-01 ' . $orden->hora_resultados)) ?>');
+        $('#ordenbussines-hora_resultados').clockTimePicker('value', '<?=date('H:i', strtotime( '2000-01-01 ' . $orden->hora_resultados)) ?>');
 
 
       } )

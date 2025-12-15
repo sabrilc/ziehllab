@@ -779,8 +779,8 @@ public function actionClienteGuardar()
         if(isset(Yii::$app->request->post('OrdenBussines')['_id'])){
             $model = OrdenBussines::findOne( Yii::$app->request->post('OrdenBussines')['_id']);
             if( $model->load( Yii::$app->request->post() )  ){
-                if( $model->fecha_resultados ==''){ $model->fecha_resultados = new Expression(" current_date"); }
-                if( $model->hora_resultados ==''){ $model->hora_resultados = new Expression(" current_time"); }
+                if( $model->fecha_resultados ==''){ $model->fecha_resultados = new Expression("current_date"); }
+                if( $model->hora_resultados ==''){ $model->hora_resultados = new Expression("current_time"); }
                 if($model->save(false)){
                 return 'OK';
                 }
